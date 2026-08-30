@@ -1,0 +1,246 @@
+{
+  "base_tiers": [
+    {
+      "tier": 1,
+      "name": "簡易戰術避難所",
+      "cost_points": 0,
+      "cost_shard": null,
+      "max_slots": 2,
+      "hp_mp_regen_rate": 0.5,
+      "passive_desc": "副本結算後全員 HP/MP 自動恢復 50%，解鎖 2 個工坊槽位。",
+      "desc": "以輪迴空間基礎物質構築的單兵安全屋，提供基礎整備與休憩功能。"
+    },
+    {
+      "tier": 2,
+      "name": "高科技前哨工坊",
+      "cost_points": 2000,
+      "cost_shard": "D",
+      "max_slots": 3,
+      "hp_mp_regen_rate": 0.8,
+      "passive_desc": "全員生命與精力上限 +50，解鎖 3 個工坊槽位及 3 倍超重力修煉。",
+      "desc": "加裝高能量等離子防護罩與奈米打印終端的現代化戰術前哨基地。"
+    },
+    {
+      "tier": 3,
+      "name": "微觀神經生態矩陣",
+      "cost_points": 5000,
+      "cost_shard": "C",
+      "max_slots": 4,
+      "hp_mp_regen_rate": 1.0,
+      "passive_desc": "全員全六圍屬性 +10，戰鬥初始額外獲得 +1 AP，解鎖 10 倍極限重力修煉。",
+      "desc": "融合高維以太與生化神經網絡的獨立生態領地，具備微型人工重力天體與修煉光環。"
+    },
+    {
+      "tier": 4,
+      "name": "跨維度永恆神域",
+      "cost_points": 12000,
+      "cost_shard": "B",
+      "max_slots": 6,
+      "hp_mp_regen_rate": 1.0,
+      "passive_desc": "全隊全環境懲罰減免 50%，副本戰鬥獲得 1 次瀕死完全復活神聖護佑！",
+      "desc": "由輪迴者心象宇宙與聖人法則具現化的永恆領土，超越凡俗物理定律的至高神域。"
+    }
+  ],
+  "production_facilities": [
+    {
+      "id": "FAC_GENE_SYNTHESIZER",
+      "name": "生化基因合成儀",
+      "category": "biotech",
+      "build_cost_points": 1000,
+      "build_requirements": [
+        { "id": "MAT_ZOMBIE_BLOOD", "name": "喪屍血液", "count": 10 },
+        { "id": "ITEM_HIVE_AI_BACKUP", "name": "亞當 AI 備份", "count": 1 }
+      ],
+      "recipes": [
+        {
+          "recipe_id": "RECIPE_VACCINE",
+          "name": "喪屍病毒抗體疫苗",
+          "output_id": "ITEM_ZOMBIE_VACCINE",
+          "output_count": 1,
+          "cost_points": 200,
+          "materials": [{ "id": "MAT_ZOMBIE_BLOOD", "name": "喪屍血液", "count": 2 }],
+          "desc": "使用後下場戰鬥全隊免疫「屍毒/腐蝕」狀態，受傷減少 15%。"
+        },
+        {
+          "recipe_id": "RECIPE_HEAL_SERUM",
+          "name": "高濃縮複合補血血清",
+          "output_id": "ITEM_HEAL_SERUM_MAX",
+          "output_count": 2,
+          "cost_points": 300,
+          "materials": [{ "id": "MAT_ZOMBIE_BLOOD", "name": "喪屍血液", "count": 3 }],
+          "desc": "強效生化血清，戰鬥中瞬間恢復單體 50% HP 與 30% MP。"
+        }
+      ],
+      "desc": "專精於提純異形與生化怪物血液的基因重組儀器，批量產出解毒疫苗與特級血清。"
+    },
+    {
+      "id": "FAC_PULSE_WORKSHOP",
+      "name": "脈衝壓電整備台",
+      "category": "tech_weapon",
+      "build_cost_points": 1500,
+      "build_requirements": [
+        { "id": "MAT_PIEZO_CRYSTAL", "name": "壓電晶體碎片", "count": 5 },
+        { "id": "MAT_SCRAP_METAL", "name": "廢棄合金", "count": 15 }
+      ],
+      "recipes": [
+        {
+          "recipe_id": "RECIPE_GRENADE",
+          "name": "high_explosive 高爆破片手雷",
+          "output_id": "high_explosive",
+          "output_count": 2,
+          "cost_points": 250,
+          "materials": [
+            { "id": "MAT_PIEZO_CRYSTAL", "name": "壓電晶體碎片", "count": 1 },
+            { "id": "MAT_SCRAP_METAL", "name": "廢棄合金", "count": 2 }
+          ],
+          "desc": "戰術破片震波手雷，對敵方全體造成毀滅性範圍傷害 (AOE)。"
+        },
+        {
+          "recipe_id": "RECIPE_AMMO_AP",
+          "name": "穿甲電磁高斯彈藥箱",
+          "output_id": "ITEM_AMMO_AP",
+          "output_count": 1,
+          "cost_points": 400,
+          "materials": [{ "id": "MAT_SCRAP_METAL", "name": "廢棄合金", "count": 4 }],
+          "desc": "高斯槍械專用彈藥，賦予隊伍遠程射手下一場戰鬥無視敵方 30% 護甲防禦。"
+        }
+      ],
+      "desc": "專門製造高爆破片武器與電磁增壓彈藥的重裝軍火台。"
+    },
+    {
+      "id": "FAC_ADAM_PRINTER",
+      "name": "亞當 AI 3D 列印機",
+      "category": "3d_printer",
+      "build_cost_points": 3000,
+      "build_requirements": [
+        { "id": "ITEM_HIVE_AI_BACKUP", "name": "亞當 AI 備份", "count": 1 },
+        { "id": "MAT_HIGH_TECH_CHIP", "name": "高階晶片", "count": 3 }
+      ],
+      "recipes": [
+        {
+          "recipe_id": "RECIPE_EQ_ARMOR_02",
+          "name": "tactical_hazmat_armor 戰術服",
+          "output_id": "tactical_hazmat_armor",
+          "output_count": 1,
+          "cost_points": 800,
+          "materials": [
+            { "id": "MAT_HIGH_TECH_CHIP", "name": "高階晶片", "count": 1 },
+            { "id": "MAT_SCRAP_METAL", "name": "廢棄合金", "count": 5 }
+          ],
+          "desc": "防禦 +30、HP +100，具備生化毒氣完全免疫標籤。"
+        },
+        {
+          "recipe_id": "RECIPE_EQ_BOOTS_FLY",
+          "name": "反重力懸浮飛靴",
+          "output_id": "EQ_TECH_BOOTS_FLY",
+          "output_count": 1,
+          "cost_points": 1200,
+          "materials": [
+            { "id": "MAT_HIGH_TECH_CHIP", "name": "高階晶片", "count": 2 },
+            { "id": "MAT_PIEZO_CRYSTAL", "name": "壓電晶體碎片", "count": 3 }
+          ],
+          "desc": "賦予隊員【飛行/懸浮】標籤，可跨越前排直擊空中與後排目標。"
+        }
+      ],
+      "desc": "由亞當神經網絡控制的微觀分子 3D 重構打印機，製造防護裝甲與飛行載具。"
+    }
+  ],
+  "training_programs": [
+    {
+      "id": "TRAIN_GRAVITY_1",
+      "name": "1.5 倍標準重力修煉",
+      "min_base_tier": 1,
+      "cost_points": 300,
+      "cost_items": [],
+      "stat_bonuses": { "con": 2, "str": 2 },
+      "desc": "在 1.5 倍重力環境下進行基礎體能與格鬥訓練，體質 +2、力量 +2。"
+    },
+    {
+      "id": "TRAIN_GRAVITY_2",
+      "name": "3.0 倍超重力深層鍛體",
+      "min_base_tier": 2,
+      "cost_points": 800,
+      "cost_items": [{ "id": "MAT_ZOMBIE_BLOOD", "name": "喪屍血液", "count": 5 }],
+      "stat_bonuses": { "con": 5, "str": 5, "spd": 5 },
+      "desc": "在高壓重力場中注入生化活性成分，體質 +5、力量 +5、敏捷 +5。"
+    },
+    {
+      "id": "TRAIN_GRAVITY_3",
+      "name": "10.0 倍極限重力突破",
+      "min_base_tier": 3,
+      "cost_points": 2000,
+      "cost_items": [{ "shard": "D", "count": 1 }],
+      "stat_bonuses": { "con": 10, "str": 10, "spd": 10, "int": 10, "mnd": 10 },
+      "desc": "開啟十倍行星重力粉碎肉身極限，全六圍屬性 +10！"
+    }
+  ],
+  "trophies": [
+    {
+      "id": "TROPHY_TYRANT_HEART",
+      "name": "極光暴君生化心臟標本",
+      "stage_source": "第一副本 · 極光重工遺址",
+      "required_item": "ITEM_TYRANT_HEART",
+      "buff_desc": "全隊物理防禦 +15，近戰肉搏攻擊傷害 +10%",
+      "desc": "浸泡在防腐液中的巨大搏動心臟，散發著恐怖的生化威壓。"
+    },
+    {
+      "id": "TROPHY_ADAM_CORE",
+      "name": "A.D.A.M. 神經網絡核心晶片",
+      "imageUrl": "images/adamcore.jpg",
+      "icon": "images/adamcore.jpg",
+      "image": "images/adamcore.jpg",
+      "stage_source": "極光重工智者隱藏下載",
+      "required_item": "ITEM_HIVE_AI_BACKUP",
+      "buff_desc": "全隊智力 +20，計算力能量池上限 +50",
+      "desc": "由純金屬與生物神經交織的頂級算力母盤，不斷閃爍著淡藍光芒。"
+    }
+  ],
+  "teammate_bonds": [
+    {
+      "name": "冷月",
+      "role": "資深執行者",
+      "avatar": "images/coldmoon.PNG",
+      "fav_gift": "MAT_HIGH_TECH_CHIP",
+      "dialogues": [
+        "這裡的環境比我上一間安全屋整潔多了……你做得不錯，隊長。",
+        "槍械保養和冥想能讓思維保持絕對平靜。在輪迴世界裡，冷靜就是生命。",
+        "只要你還活著，我就會履行引導者的職責，直到你徹底超越我。"
+      ],
+      "perks": [
+        { "level": 1, "name": "戰術默契", "desc": "與冷月一同出戰時，命中率 +10%" },
+        { "level": 2, "name": "心靈同調", "desc": "冷月與主角相鄰站位時，暴擊率 +15%，AP 消耗 -1 (最低 1)" }
+      ]
+    },
+    {
+      "name": "項天",
+      "role": "前外企白領 / 潛能霸王",
+      "avatar": "images/xiangtian.PNG",
+      "fav_gift": "MAT_SCRAP_METAL",
+      "dialogues": [
+        "呼……這靈茶的味道很奇妙，喝下去感覺體內混元之氣與血脈沸騰感都平復了許多！",
+        "臨淵，只要有你在身邊，不管遇到多恐怖的生化怪物，我都敢第一個衝上去把它們撕碎！",
+        "在原來的世界我只是個平凡社畜，但既然來到這個殘酷的輪迴世界，我就一定要跟著你活到最後！"
+      ],
+      "perks": [
+        { "level": 1, "name": "狂暴血魄", "desc": "項天在前排時，自身受物理傷害減少 15%，攻擊力 +15%" },
+        { "level": 2, "name": "混元守護", "desc": "當後排隊友受到致命傷害時，項天有 50% 機率替其完全抵擋該次攻擊" }
+      ]
+    },
+    {
+      "name": "蘇曉",
+      "role": "作家 / 精神感知者",
+      "avatar": "images/femalewriter.PNG",
+      "fav_gift": "MAT_PIEZO_CRYSTAL",
+      "dialogues": [
+        "這裡的花草茶香氣讓人好放鬆……真不敢相信剛才我們還在喪屍堆裡逃命。",
+        "我正在把我們的戰鬥經歷寫成筆記……如果能活著回去，這一定會是一本偉大的小說。",
+        "隊長，我感知到了你溫暖的精神波動……只要跟大家在一起，我就不再害怕了！"
+      ],
+      "perks": [
+        { "level": 1, "name": "精神共振", "desc": "蘇曉在後排時，全隊每回合自動恢復 10 點精力 (MP)" },
+        { "level": 2, "name": "戰場全景感知", "desc": "戰鬥開局時自動偵測全體敵方意圖，全員閃避率 +15%" }
+      ]
+    }
+  ]
+}
+

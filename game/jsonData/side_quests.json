@@ -1,0 +1,92 @@
+{
+  "side_quests": [
+    {
+      "quest_id": "SQ_1_1_A",
+      "node_id": "NODE_1_1_EXPLORE",
+      "quest_title": "被遺棄的醫務室",
+      "dialogue_lines": [
+        {
+          "speaker": "隊友",
+          "text": "隊長！前方看起來像個蜂巢特種醫務室，但是強化電子防爆鎖處於高壓鎖死狀態！"
+        },
+        {
+          "speaker": "系統",
+          "text": "請選擇隊伍行動方案："
+        }
+      ],
+      "choices": [
+        {
+          "option_text": "[智者檢定] 嘗試破解電子鎖 (需要隊伍最高 INT >= 100)",
+          "req_int": 100,
+          "success": {
+            "text": "智者冷靜地連接數據接口，僅耗時 5 秒便繞過防火牆！在醫務室保險櫃中發現了大量高純度素材與碎片！",
+            "reward_items": [
+              { "item_id": "MAT_ZOMBIE_BLOOD", "count": 20 },
+              { "item_id": "MAT_TECH_PARTS", "count": 5 },
+              { "item_id": "item_heal_spray", "count": 3 }
+            ],
+            "reward_fate_shard": "C",
+            "reward_points": 600
+          },
+          "fail": {
+            "text": "嗶——！警報聲刺破死寂，高分貝蜂鳴引來了周圍大批狂暴的舔食者！",
+            "trigger_battle_monsters": [
+              { "monster_id": "MOB_LICKER_01", "count": 2 }
+            ]
+          }
+        },
+        {
+          "option_text": "暴力爆破破門 (直接觸發警報戰鬥)",
+          "trigger_battle_monsters": [
+            { "monster_id": "MOB_ZOMBIE_01", "count": 3 },
+            { "monster_id": "MOB_LICKER_01", "count": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "quest_id": "SQ_1_1_B",
+      "node_id": "NODE_1_1_SERVER",
+      "quest_title": "蜂巢中央主控機房 (AI 核心)",
+      "dialogue_lines": [
+        {
+          "speaker": "隊友",
+          "text": "這就是蜂巢基地的中央超級電腦！螢幕上還在運算著生化病毒與高科技軍火的藍圖數據！"
+        },
+        {
+          "speaker": "系統",
+          "text": "請選擇對超級電腦的操作："
+        }
+      ],
+      "choices": [
+        {
+          "option_text": "[智者/黑客檢定] 深度駭入並下載【蜂巢基地主控 AI 備份】 (需要隊伍最高 INT >= 100)",
+          "req_int": 100,
+          "success": {
+            "text": "【破解大獲全勝】智者成功繞過紅后防禦陣列，將完整的【蜂巢基地主控 AI 備份】下載至戰術硬碟中！帶回個人房間安裝可解鎖【高科技裝備生成終端】！",
+            "reward_items": [
+              { "item_id": "ITEM_HIVE_AI_BACKUP", "count": 1 },
+              { "item_id": "MAT_TECH_PARTS", "count": 8 }
+            ],
+            "reward_fate_shard": "B",
+            "reward_points": 1000
+          },
+          "fail": {
+            "text": "超級電腦啟動自衛雷射電網！隊員受到電擊並引來守衛！",
+            "trigger_battle_monsters": [
+              { "monster_id": "MOB_LICKER_01", "count": 2 }
+            ]
+          }
+        },
+        {
+          "option_text": "強行拔除伺服器硬碟 (獲得科技零件)",
+          "reward_items": [
+            { "item_id": "MAT_TECH_PARTS", "count": 10 }
+          ],
+          "reward_points": 300
+        }
+      ]
+    }
+  ]
+}
+

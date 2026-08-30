@@ -1,0 +1,106 @@
+{
+  "stages": [
+    {
+      "stage_id": "STAGE_1_1",
+      "stage_name": "蜂巢設施地下層 (Zombie Hive B1-B3)",
+      "world_id": "zombie",
+      "is_cleared": false,
+      "map_nodes": [
+        {
+          "node_id": "NODE_1_1_MAIN",
+          "node_name": "蜂巢外圍防禦閘門",
+          "node_type": "main_story",
+          "map_position": { "x": 300, "y": 700 },
+          "side_quest_id": null,
+          "is_cleared": false,
+          "repeatable_battle": {
+            "battle_waves": [
+              {
+                "wave_number": 1,
+                "monsters": [
+                  { "monster_id": "MOB_ZOMBIE_01", "count": 3, "position": "Frontline" }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "node_id": "NODE_1_1_EXPLORE",
+          "node_name": "B1 醫務室廢墟",
+          "node_type": "side_quest",
+          "map_position": { "x": 580, "y": 500 },
+          "side_quest_id": "SQ_1_1_A",
+          "is_side_quest_cleared": false,
+          "repeatable_battle": {
+            "battle_waves": [
+              {
+                "wave_number": 1,
+                "monsters": [
+                  { "monster_id": "MOB_ZOMBIE_01", "count": 2, "position": "Frontline" },
+                  { "monster_id": "MOB_LICKER_01", "count": 1, "position": "Backline_Hunter" }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "node_id": "NODE_1_1_SERVER",
+          "node_name": "蜂巢中央主控機房 (AI 核心)",
+          "node_type": "side_quest",
+          "map_position": { "x": 880, "y": 380 },
+          "side_quest_id": "SQ_1_1_B",
+          "is_side_quest_cleared": false,
+          "repeatable_battle": {
+            "battle_waves": [
+              {
+                "wave_number": 1,
+                "monsters": [
+                  { "monster_id": "MOB_LICKER_01", "count": 2, "position": "Backline_Hunter" }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "node_id": "NODE_1_1_LAB",
+          "node_name": "生化培養中心 (大量刷怪區)",
+          "node_type": "farming",
+          "map_position": { "x": 1200, "y": 620 },
+          "side_quest_id": null,
+          "is_cleared": false,
+          "repeatable_battle": {
+            "battle_waves": [
+              {
+                "wave_number": 1,
+                "monsters": [
+                  { "monster_id": "MOB_ZOMBIE_01", "count": 4, "position": "Frontline" },
+                  { "monster_id": "MOB_LICKER_01", "count": 1, "position": "Backline_Hunter" }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "node_id": "NODE_1_1_BOSS",
+          "node_name": "深層暴君培養槽 (終極決戰)",
+          "node_type": "boss",
+          "map_position": { "x": 1500, "y": 420 },
+          "side_quest_id": null,
+          "is_cleared": false,
+          "repeatable_battle": {
+            "battle_waves": [
+              {
+                "wave_number": 1,
+                "monsters": [
+                  { "monster_id": "MOB_TYRANT_01", "count": 1, "position": "Boss" },
+                  { "monster_id": "MOB_LICKER_01", "count": 2, "position": "Backline_Hunter" }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
+

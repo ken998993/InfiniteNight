@@ -1,0 +1,971 @@
+{
+  "items": [
+    {
+      "id": "item_heal_spray",
+      "name": "輪迴止血急救噴霧",
+      "type": "consumable",
+      "category": "Tech",
+      "tags": [
+        "消耗品",
+        "醫療",
+        "科技",
+        "生命回復"
+      ],
+      "cost_points": 150,
+      "cost_fate_shard": null,
+      "desc": "以輪迴奈米修復技術製成的高效急救噴霧。噴灑後傷口瞬間止血結痂，立即恢復 80 點 HP。",
+      "effect_type": "heal_hp",
+      "effect_val": 80,
+      "usable_in_battle": true,
+      "usable_in_menu": true,
+      "equip_slot": null
+    },
+    {
+      "id": "item_mp_potion",
+      "name": "強效精神穩定劑",
+      "type": "consumable",
+      "category": "Tech",
+      "tags": [
+        "消耗品",
+        "精神",
+        "科技",
+        "能量回復"
+      ],
+      "cost_points": 150,
+      "cost_fate_shard": null,
+      "desc": "直接注入神經中樞的生化鎮靜劑。消除精神疲勞與恐慌，恢復 50 點精神力 (MP) 與 30 點精神力場。",
+      "effect_type": "heal_mp",
+      "effect_val": 50,
+      "usable_in_battle": true,
+      "usable_in_menu": true,
+      "equip_slot": null
+    },
+    {
+      "id": "item_qi_elixir",
+      "name": "高純度氣血精華液",
+      "type": "consumable",
+      "category": "Magic",
+      "tags": [
+        "消耗品",
+        "氣血",
+        "魔法",
+        "內力回復"
+      ],
+      "cost_points": 200,
+      "cost_fate_shard": null,
+      "desc": "萃取自修真靈草與變異生物核心的活性液體。迅速補充體內消耗的氣血、血能與混元內力各 60 點。",
+      "effect_type": "heal_energy",
+      "effect_val": 60,
+      "usable_in_battle": true,
+      "usable_in_menu": true,
+      "equip_slot": null
+    },
+    {
+      "id": "ITEM_TEA_PACK",
+      "name": "輪迴特級安神靈茶",
+      "type": "consumable",
+      "category": "Magic",
+      "tags": [
+        "消耗品",
+        "家園道具",
+        "社交",
+        "羈絆品茗"
+      ],
+      "cost_points": 100,
+      "cost_fate_shard": null,
+      "desc": "由輪迴空間特供的高維安神靈茶葉，沖泡後香氣凝神靜氣。用於在神域休息室與隊友品茗談心，提升好感羈絆並補滿精神。",
+      "effect_type": "tea_talk",
+      "effect_val": 20,
+      "usable_in_battle": false,
+      "usable_in_menu": true,
+      "equip_slot": null
+    },
+    {
+      "id": "high_explosive",
+      "name": "high_explosive 高爆破片手雷",
+      "imageUrl": "images/high_explosive_fragmentation_grenade.jpg",
+      "icon": "images/high_explosive_fragmentation_grenade.jpg",
+      "image": "images/high_explosive_fragmentation_grenade.jpg",
+      "type": "tactical",
+      "category": "Tech",
+      "tags": [
+        "戰術道具",
+        "科技",
+        "爆破",
+        "範圍傷害"
+      ],
+      "cost_points": 200,
+      "cost_fate_shard": null,
+      "desc": "特種合金高爆破片手榴彈。拔開拉環投擲，對全體敵方單位造成 90 點範圍爆炸傷害。",
+      "effect_type": "aoe_damage",
+      "effect_val": 90,
+      "usable_in_battle": true,
+      "usable_in_menu": false,
+      "equip_slot": null
+    },
+    {
+      "id": "item_grenade",
+      "name": "high_explosive 高爆破片手雷",
+      "imageUrl": "images/high_explosive_fragmentation_grenade.jpg",
+      "icon": "images/high_explosive_fragmentation_grenade.jpg",
+      "image": "images/high_explosive_fragmentation_grenade.jpg",
+      "type": "tactical",
+      "category": "Tech",
+      "tags": [
+        "戰術道具",
+        "科技",
+        "爆破",
+        "範圍傷害"
+      ],
+      "cost_points": 200,
+      "cost_fate_shard": null,
+      "desc": "特種合金高爆破片手榴彈。拔開拉環投擲，對全體敵方單位造成 90 點範圍爆炸傷害。",
+      "effect_type": "aoe_damage",
+      "effect_val": 90,
+      "usable_in_battle": true,
+      "usable_in_menu": false,
+      "equip_slot": null
+    },
+    {
+      "id": "item_emp_grenade",
+      "name": "電磁脈衝震盪雷",
+      "type": "tactical",
+      "category": "Tech",
+      "tags": [
+        "戰術道具",
+        "科技",
+        "電磁",
+        "控制破盾"
+      ],
+      "cost_points": 300,
+      "cost_fate_shard": null,
+      "desc": "釋放強烈電磁擾亂波的戰術手雷。對全體敵人造成 60 點電磁傷害並干擾其行動神經。",
+      "effect_type": "aoe_damage",
+      "effect_val": 60,
+      "usable_in_battle": true,
+      "usable_in_menu": false,
+      "equip_slot": null
+    },
+    {
+      "id": "EQ_TECH_HELMET_01",
+      "name": "戰術防毒過濾面具",
+      "type": "equipment",
+      "category": "Tech",
+      "tags": [
+        "防具",
+        "頭部",
+        "科技",
+        "毒氣免疫"
+      ],
+      "cost_points": 600,
+      "cost_fate_shard": "D",
+      "desc": "特種生化軍用三層過濾呼吸面具。內建微型增壓循環系統，完全免疫生化毒氣與毒素傷害。生命上限 +40。",
+      "attributes": {
+        "max_hp": 40
+      },
+      "is_gas_immune": true,
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": "head",
+      "req_stats": {
+        "CON": 15
+      }
+    },
+    {
+      "id": "EQ_MAGIC_HOOD_01",
+      "name": "秘銀暗影魔導兜帽",
+      "type": "equipment",
+      "category": "Magic",
+      "tags": [
+        "防具",
+        "頭部",
+        "魔法",
+        "精神抗性"
+      ],
+      "cost_points": 1200,
+      "cost_fate_shard": "D",
+      "desc": "精靈秘銀絲編織的法師兜帽。附帶靜心魔紋，大幅提升精神專注力與冥想效率。精神力上限 +50，魔法抗性提升。",
+      "attributes": {
+        "max_mp": 50
+      },
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": "head",
+      "req_stats": {
+        "INT": 25
+      }
+    },
+    {
+      "id": "EQ_TECH_ARMOR_01",
+      "name": "奈米仿生全封閉作戰服",
+      "type": "equipment",
+      "category": "Tech",
+      "tags": [
+        "防具",
+        "胸甲",
+        "科技",
+        "毒氣免疫",
+        "全身防護"
+      ],
+      "cost_points": 2000,
+      "cost_fate_shard": "C",
+      "desc": "輪迴高科技奈米纖維作戰裝甲。隨肌肉收縮硬化吸收衝擊，具備全封閉自循環系統。生命上限 +160，防禦 +30，完全免疫毒氣環境。",
+      "attributes": {
+        "max_hp": 160
+      },
+      "is_gas_immune": true,
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": "torso",
+      "req_stats": {
+        "CON": 25
+      }
+    },
+    {
+      "id": "EQ_MAGIC_ROBE_01",
+      "name": "純陽混元天蠶道袍",
+      "type": "equipment",
+      "category": "Magic",
+      "tags": [
+        "防具",
+        "胸甲",
+        "魔法",
+        "東方修真",
+        "靈氣護體"
+      ],
+      "cost_points": 2400,
+      "cost_fate_shard": "C",
+      "desc": "千年天蠶雪絲浸泡純陽靈泉織成的修真道袍。刀槍不入，辟邪驅煞。生命上限 +140，混元內力上限 +60。",
+      "attributes": {
+        "max_hp": 140,
+        "neili_max": 60
+      },
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": "torso",
+      "req_stats": {
+        "CON": 20,
+        "MND": 20
+      }
+    },
+    {
+      "id": "EQ_TECH_GLOVES_01",
+      "name": "外骨骼動力戰術拳套",
+      "type": "equipment",
+      "category": "Tech",
+      "tags": [
+        "防具",
+        "手套",
+        "科技",
+        "物理增幅"
+      ],
+      "cost_points": 800,
+      "cost_fate_shard": "D",
+      "desc": "微型液壓傳動的特種外骨骼拳套。極大強化抓握力與出拳穿透力。攻擊力 +20，生命上限 +30。",
+      "attributes": {
+        "atk": 20,
+        "max_hp": 30
+      },
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": "hands",
+      "req_stats": {
+        "STR": 15
+      }
+    },
+    {
+      "id": "EQ_MAGIC_BRACER_01",
+      "name": "精靈月華守護護腕",
+      "type": "equipment",
+      "category": "Magic",
+      "tags": [
+        "防具",
+        "手套",
+        "魔法",
+        "精神力場"
+      ],
+      "cost_points": 1400,
+      "cost_fate_shard": "D",
+      "desc": "以世界樹枯枝雕琢並鑲嵌月光寶石的精靈護腕。精神力上限 +40，精神力場上限 +40。",
+      "attributes": {
+        "max_mp": 40,
+        "mental_max": 40
+      },
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": "hands",
+      "req_stats": {
+        "INT": 20
+      }
+    },
+    {
+      "id": "EQ_TECH_BOOTS_01",
+      "name": "懸浮反重力飛靴",
+      "type": "equipment",
+      "category": "Tech",
+      "tags": [
+        "防具",
+        "鞋子",
+        "科技",
+        "飛行標籤"
+      ],
+      "cost_points": 1500,
+      "cost_fate_shard": "D",
+      "desc": "鞋底搭載離子微噴流與反重力發生器。穿戴後自動獲得【飛行標籤】，無視地形阻礙與重力陷阱。速度大幅提升。",
+      "attributes": {
+        "max_hp": 30
+      },
+      "is_flight": true,
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": "feet",
+      "req_stats": {
+        "SPD": 20
+      }
+    },
+    {
+      "id": "EQ_MAGIC_BOOTS_01",
+      "name": "疾風行者凌空戰靴",
+      "type": "equipment",
+      "category": "Magic",
+      "tags": [
+        "防具",
+        "鞋子",
+        "魔法",
+        "飛行標籤",
+        "凌波微步"
+      ],
+      "cost_points": 1800,
+      "cost_fate_shard": "D",
+      "desc": "風精靈加護的輕盈戰靴。御風而行，踩踏空氣飛行！穿戴後賦予【飛行標籤】。混元內力上限 +30。",
+      "attributes": {
+        "neili_max": 30
+      },
+      "is_flight": true,
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": "feet",
+      "req_stats": {
+        "SPD": 15,
+        "MND": 15
+      }
+    },
+    {
+      "id": "EQ_MAGIC_NECKLACE_01",
+      "name": "定魂辟邪古玉佩",
+      "type": "equipment",
+      "category": "Magic",
+      "tags": [
+        "飾品",
+        "項鍊",
+        "魔法",
+        "靈魂防禦"
+      ],
+      "cost_points": 1200,
+      "cost_fate_shard": "D",
+      "desc": "溫潤的古代靈玉雕琢而成。安定心神，抵禦微弱精神污染與靈異冤魂噬咬。精神力上限 +50，混元內力上限 +30。",
+      "attributes": {
+        "max_mp": 50,
+        "neili_max": 30
+      },
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": "necklace",
+      "req_stats": {
+        "MND": 20
+      }
+    },
+    {
+      "id": "EQ_TECH_NECKLACE_01",
+      "name": "微型核聚變核心項墜",
+      "type": "equipment",
+      "category": "Tech",
+      "tags": [
+        "飾品",
+        "項鍊",
+        "科技",
+        "高能供電"
+      ],
+      "cost_points": 1500,
+      "cost_fate_shard": "D",
+      "desc": "掌心大小的微型常溫核聚變電池項圈。源源不絕供應微電流活化人體細胞。生命上限 +60，精力上限 +30。",
+      "attributes": {
+        "max_hp": 60,
+        "max_mp": 30
+      },
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": "necklace",
+      "req_stats": {
+        "CON": 15,
+        "INT": 15
+      }
+    },
+    {
+      "id": "weapon_gauss_rifle",
+      "name": "高斯電磁突擊步槍",
+      "type": "weapon",
+      "category": "Tech",
+      "tags": [
+        "武器",
+        "主手武器",
+        "科技",
+        "槍械",
+        "電磁穿甲"
+      ],
+      "cost_points": 2000,
+      "cost_fate_shard": "D",
+      "desc": "利用多級電磁線圈加速超合金鎢芯彈丸的高科技步槍。具備極高射速與穿甲破壞力。普通攻擊傷害大幅提升。攻擊力 +50。",
+      "attributes": {
+        "atk": 50
+      },
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": "main_hand",
+      "req_stats": {
+        "STR": 20,
+        "SPD": 15
+      }
+    },
+    {
+      "id": "weapon_plasma_katana",
+      "name": "純陽等離子斬馬刀",
+      "type": "weapon",
+      "category": "Magic",
+      "tags": [
+        "武器",
+        "主手武器",
+        "魔法",
+        "近戰",
+        "魔法打擊",
+        "靈異剋星"
+      ],
+      "cost_points": 2500,
+      "cost_fate_shard": "C",
+      "desc": "刀刃附著高溫純陽等離子光膜的雙手戰刀。具備【魔法打擊】屬性，切金斷玉，可對靈異幽魂造成 100% 全額傷害！攻擊力 +65。",
+      "attributes": {
+        "atk": 65
+      },
+      "is_magic_weapon": true,
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": "main_hand",
+      "req_stats": {
+        "INT": 30,
+        "MND": 20
+      }
+    },
+    {
+      "id": "weapon_spirit_bow",
+      "name": "自然之息神木長弓",
+      "type": "weapon",
+      "category": "Magic",
+      "tags": [
+        "武器",
+        "主手武器",
+        "魔法",
+        "遠程",
+        "魔法打擊"
+      ],
+      "cost_points": 2400,
+      "cost_fate_shard": "C",
+      "desc": "以世界樹幼枝編織的精靈戰弓。自動凝聚精神力箭矢，具備【魔法打擊】效果。攻擊力 +55，精神力上限 +40。",
+      "attributes": {
+        "atk": 55,
+        "max_mp": 40
+      },
+      "is_magic_weapon": true,
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": "main_hand",
+      "req_stats": {
+        "INT": 30,
+        "MND": 20
+      }
+    },
+    {
+      "id": "EQ_TECH_SHIELD_01",
+      "name": "多面體能量偏轉盾",
+      "type": "equipment",
+      "category": "Tech",
+      "tags": [
+        "防具",
+        "副手防具",
+        "科技",
+        "護盾減傷"
+      ],
+      "cost_points": 1600,
+      "cost_fate_shard": "D",
+      "desc": "單手握持的晶體力場偏轉盾牌。展開蜂窩狀能量防禦面，吸收 25% 物理與爆炸衝擊。生命上限 +80。",
+      "attributes": {
+        "max_hp": 80
+      },
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": "off_hand",
+      "req_stats": {
+        "CON": 20,
+        "STR": 15
+      }
+    },
+    {
+      "id": "EQ_MAGIC_MIRROR_01",
+      "name": "混元太極乾坤八卦鏡",
+      "type": "equipment",
+      "category": "Magic",
+      "tags": [
+        "防具",
+        "副手防具",
+        "魔法",
+        "東方修真",
+        "靈異反彈"
+      ],
+      "cost_points": 1800,
+      "cost_fate_shard": "D",
+      "desc": "青銅鑄造的茅山純陽法鏡。手持可反射妖魔鬼怪邪氣與詛咒。精神力上限 +40，混元內力上限 +40。",
+      "attributes": {
+        "max_mp": 40,
+        "neili_max": 40
+      },
+      "is_magic_weapon": true,
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": "off_hand",
+      "req_stats": {
+        "INT": 20,
+        "MND": 20
+      }
+    },
+    {
+      "id": "EQ_MOUNT_GLIDER_01",
+      "name": "綠魔反重力飛行滑板",
+      "type": "equipment",
+      "category": "Tech",
+      "tags": [
+        "載具",
+        "飛行載具",
+        "科技",
+        "飛行標籤"
+      ],
+      "cost_points": 3000,
+      "cost_fate_shard": "C",
+      "desc": "高機動性渦輪反重力懸浮滑板。踩踏其上可在三維空域超高速穿梭，強制賦予【飛行標籤】，完全免疫地面陷阱與近戰限制。攻擊力 +15，生命上限 +60。",
+      "attributes": {
+        "atk": 15,
+        "max_hp": 60
+      },
+      "is_flight": true,
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": "mount",
+      "req_stats": {
+        "SPD": 25
+      }
+    },
+    {
+      "id": "EQ_MOUNT_JETPACK_01",
+      "name": "戰術向量推進噴射背包",
+      "type": "equipment",
+      "category": "Tech",
+      "tags": [
+        "載具",
+        "飛行載具",
+        "科技",
+        "飛行標籤",
+        "太空適應"
+      ],
+      "cost_points": 2800,
+      "cost_fate_shard": "C",
+      "desc": "背負式雙噴口電漿推進器。穿戴後獲得【飛行標籤】，在真空無重力太空中依然能自由高速機動並全力作戰！生命上限 +80。",
+      "attributes": {
+        "max_hp": 80
+      },
+      "is_flight": true,
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": "mount",
+      "req_stats": {
+        "SPD": 25
+      }
+    },
+    {
+      "id": "MAT_ZOMBIE_BLOOD",
+      "name": "喪屍血液 (試管裝)",
+      "type": "material",
+      "category": "Tech",
+      "tags": [
+        "素材",
+        "生化",
+        "基因研究",
+        "高科技工坊"
+      ],
+      "cost_points": 20,
+      "cost_fate_shard": null,
+      "desc": "自喪屍與變異體體內抽取的未稀釋高活性生化血液。集齊 100 瓶可在個人房間特製【基因鎖解鎖藥劑】或進行高科技武器打印。",
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": null
+    },
+    {
+      "id": "MAT_TECH_PARTS",
+      "name": "高精密度科技零件",
+      "type": "material",
+      "category": "Tech",
+      "tags": [
+        "素材",
+        "科技",
+        "武器打印",
+        "高科技工坊"
+      ],
+      "cost_points": 50,
+      "cost_fate_shard": null,
+      "desc": "自高科技設施或機械守衛殘骸中拆解的超導合金與邏輯運算晶片。用於高科技裝備生成。",
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": null
+    },
+    {
+      "id": "MAT_HIGH_MUTANT_GENE",
+      "name": "高階變異基因片段",
+      "type": "material",
+      "category": "Tech",
+      "tags": [
+        "素材",
+        "稀有",
+        "基因工程",
+        "高科技工坊"
+      ],
+      "cost_points": 300,
+      "cost_fate_shard": "D",
+      "desc": "自舔食者與暴君體內提取的罕見基因螺旋序列。蘊含打破肉體凡胎極限的強大生化能量。",
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": null
+    },
+    {
+      "id": "ITEM_GENE_LOCK_ELIXIR",
+      "name": "基因鎖解鎖藥劑",
+      "type": "consumable",
+      "category": "Tech",
+      "tags": [
+        "消耗品",
+        "特製藥劑",
+        "基因鎖突破",
+        "神級至寶"
+      ],
+      "cost_points": 3000,
+      "cost_fate_shard": "C",
+      "desc": "個人房間高科技工坊以 100 瓶喪屍血液提純合成的奇蹟藥劑。使用後無視任何死亡瀕死條件，強制開啟/晉升 1 階基因鎖！",
+      "effect_type": "unlock_genelock",
+      "effect_val": 1,
+      "usable_in_battle": false,
+      "usable_in_menu": true,
+      "equip_slot": null
+    },
+    {
+      "id": "ITEM_HIVE_AI_BACKUP",
+      "name": "亞當神經元矩陣備份 (A.D.A.M. Core)",
+      "imageUrl": "images/adamcore.jpg",
+      "icon": "images/adamcore.jpg",
+      "image": "images/adamcore.jpg",
+      "type": "key_item",
+      "category": "Tech",
+      "tags": [
+        "重要道具",
+        "超級電腦",
+        "房間安裝",
+        "高科技解鎖"
+      ],
+      "cost_points": 0,
+      "cost_fate_shard": null,
+      "desc": "極光重工 A.D.A.M. 生物神經網絡中央主機的完整核心架構備份。帶回個人房間安裝後，可解鎖高科技裝備 3D 列印終端！",
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": null
+    },
+    {
+      "id": "EQ_TECH_PLASMA_RIFLE",
+      "name": "蜂巢電漿脈衝突擊步槍",
+      "type": "weapon",
+      "category": "Tech",
+      "tags": [
+        "武器",
+        "主手武器",
+        "科技",
+        "高科技打印",
+        "電漿破盾"
+      ],
+      "cost_points": 3500,
+      "cost_fate_shard": "B",
+      "desc": "由蜂巢主控 AI 打印的高能電漿突擊步槍。射出超高溫離子光束，無視目標 30% 護甲防禦。攻擊力 +75，生命上限 +50。",
+      "attributes": {
+        "atk": 75,
+        "max_hp": 50
+      },
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": "main_hand",
+      "req_stats": {
+        "STR": 20,
+        "SPD": 15
+      }
+    },
+    {
+      "id": "EQ_TECH_PARTICLE_BLADE",
+      "name": "高頻震盪電磁粒子刀",
+      "type": "weapon",
+      "category": "Tech",
+      "tags": [
+        "武器",
+        "主手武器",
+        "科技",
+        "高科技打印",
+        "極限穿透"
+      ],
+      "cost_points": 4000,
+      "cost_fate_shard": "B",
+      "desc": "刀刃以每秒數百萬次微觀高頻震盪的戰術合金近戰武器。輕易切開特種裝甲。攻擊力 +85，暴擊傷害大幅提升。",
+      "attributes": {
+        "atk": 85,
+        "max_hp": 40
+      },
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": "main_hand",
+      "req_stats": {
+        "STR": 20,
+        "SPD": 15
+      }
+    },
+    {
+      "id": "EQ_TECH_PULSE_SHIELD",
+      "name": "蜂巢脈衝能量護盾核心",
+      "type": "equipment",
+      "category": "Tech",
+      "tags": [
+        "防具",
+        "副手防具",
+        "科技",
+        "高科技打印",
+        "能量偏折"
+      ],
+      "cost_points": 2500,
+      "cost_fate_shard": "C",
+      "desc": "生成球形電磁脈衝力場的高科技防護核心。大幅削弱遠程與爆炸衝擊。生命上限 +120，防禦力大幅提升。",
+      "attributes": {
+        "max_hp": 120
+      },
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": "off_hand",
+      "req_stats": {
+        "CON": 20,
+        "STR": 15
+      }
+    },
+    {
+      "id": "tactical_hazmat_armor",
+      "name": "tactical_hazmat_armor 戰術服",
+      "imageUrl": "images/tactical_hazmat_armor.jpg",
+      "icon": "images/tactical_hazmat_armor.jpg",
+      "image": "images/tactical_hazmat_armor.jpg",
+      "type": "equipment",
+      "category": "Tech",
+      "tags": [
+        "防具",
+        "胸甲",
+        "科技",
+        "毒氣免疫",
+        "重裝防護"
+      ],
+      "cost_points": 1500,
+      "cost_fate_shard": "D",
+      "desc": "重型特種防生化防彈作戰服。內置高壓氧氣瓶，完全豁免毒氣傷害。生命上限 +100，防禦力大幅增強。",
+      "attributes": {
+        "max_hp": 100,
+        "def": 30
+      },
+      "req_stats": {
+        "CON": 30
+      },
+      "is_gas_immune": true,
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": "torso"
+    },
+    {
+      "id": "EQ_TECH_ARMOR_02",
+      "name": "tactical_hazmat_armor 戰術服",
+      "imageUrl": "images/tactical_hazmat_armor.jpg",
+      "icon": "images/tactical_hazmat_armor.jpg",
+      "image": "images/tactical_hazmat_armor.jpg",
+      "type": "equipment",
+      "category": "Tech",
+      "tags": [
+        "防具",
+        "胸甲",
+        "科技",
+        "毒氣免疫",
+        "重裝防護"
+      ],
+      "cost_points": 1500,
+      "cost_fate_shard": "D",
+      "desc": "重型特種防生化防彈作戰服。內置高壓氧氣瓶，完全豁免毒氣傷害。生命上限 +100，防禦力大幅增強。",
+      "attributes": {
+        "max_hp": 100,
+        "def": 30
+      },
+      "req_stats": {
+        "CON": 30
+      },
+      "is_gas_immune": true,
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": "torso"
+    },
+    {
+      "id": "MAT_ALIEN_QUEEN_DNA",
+      "name": "異形皇后酸性 DNA 突變株",
+      "type": "material",
+      "category": "Tech",
+      "tags": [
+        "稀有材料",
+        "生化基因",
+        "第二副本",
+        "強酸塗料"
+      ],
+      "cost_points": 2000,
+      "cost_fate_shard": "C",
+      "desc": "自異形皇后體內提取的超濃縮酸性突變基因組織。可用於在神域工坊合成『腐蝕強酸塗料』，大幅削弱敵方防禦力。",
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": null
+    },
+    {
+      "id": "MAT_ZERO_G_ALLOY",
+      "name": "太空零重力合金",
+      "type": "material",
+      "category": "Tech",
+      "tags": [
+        "稀有材料",
+        "航太金屬",
+        "第二副本",
+        "懸浮裝備"
+      ],
+      "cost_points": 1500,
+      "cost_fate_shard": "D",
+      "desc": "自幽靈母艦動力甲中拆解出的高強度失重合金。可在工坊中批量整備『懸浮組件』與外骨骼動力靴。",
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": null
+    },
+    {
+      "id": "MAT_SPIRIT_CORE",
+      "name": "陰陽怨念核心晶片",
+      "type": "material",
+      "category": "Magic",
+      "tags": [
+        "稀有材料",
+        "靈異核心",
+        "第三副本",
+        "清心血清"
+      ],
+      "cost_points": 2500,
+      "cost_fate_shard": "C",
+      "desc": "自日式咒怨凶宅怨靈本體提煉的陰陽怨念結晶。可用於合成『辟邪清心血清』，戰鬥中瞬間恢復 50% MP 並免疫詛咒。",
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": null
+    },
+    {
+      "id": "MAT_TAOIST_RUNES",
+      "name": "茅山朱砂與靈木碎片",
+      "type": "material",
+      "category": "Magic",
+      "tags": [
+        "稀有材料",
+        "道家符文",
+        "第三副本",
+        "破魔彈藥"
+      ],
+      "cost_points": 1800,
+      "cost_fate_shard": "D",
+      "desc": "道家天師開光朱砂與雷擊棗木碎片。可用於生產『破魔靈光彈藥』，使常規武器具備破除靈體免疫的特殊傷害效果。",
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": null
+    },
+    {
+      "id": "MAT_THUNDER_SPIRIT_STONE",
+      "name": "蜀山天雷靈石核心",
+      "type": "material",
+      "category": "Magic",
+      "tags": [
+        "稀有材料",
+        "修真神石",
+        "第四副本",
+        "天雷飛劍"
+      ],
+      "cost_points": 3000,
+      "cost_fate_shard": "B",
+      "desc": "蜀山封魔陣法中孕育的天雷靈石核心。可用於在工坊中打印『天雷電磁飛劍』與高階附魔武器。",
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": null
+    },
+    {
+      "id": "MAT_DEMON_ESSENCE",
+      "name": "千年血魔精粹",
+      "type": "material",
+      "category": "Magic",
+      "tags": [
+        "稀有材料",
+        "血海精華",
+        "第四副本",
+        "狂熱血清"
+      ],
+      "cost_points": 2500,
+      "cost_fate_shard": "C",
+      "desc": "自蜀山血海封印深處提取的血魔精粹。可用於合成『狂暴精血狂熱血清』，大幅提升攻擊力與突破 AP 點數。",
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": null
+    },
+    {
+      "id": "MAT_SOLAR_PYRAMID_CORE",
+      "name": "太陽金字塔核心晶片",
+      "type": "material",
+      "category": "Tech",
+      "tags": [
+        "稀有材料",
+        "神聖科技",
+        "第五副本",
+        "太陽神聖槍"
+      ],
+      "cost_points": 4000,
+      "cost_fate_shard": "A",
+      "desc": "自木乃伊遺跡奪取的古文明太陽晶片。可在工坊中列印『太陽神聖槍』，對靈體與黑暗生物造成 200% 破甲毀滅傷害。",
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": null
+    },
+    {
+      "id": "MAT_WOLF_GENE",
+      "name": "印洲隊狼人基因精粹",
+      "type": "material",
+      "category": "Tech",
+      "tags": [
+        "稀有材料",
+        "團戰戰利品",
+        "第五副本",
+        "獸化血清"
+      ],
+      "cost_points": 3500,
+      "cost_fate_shard": "B",
+      "desc": "擊殺印洲隊狼人隊長巴魯特掠奪的高階基因精粹。可用於合成『獸化爆發血清』，賦予隊員超強肉體再生與防禦加成。",
+      "usable_in_battle": false,
+      "usable_in_menu": false,
+      "equip_slot": null
+    }
+  ]
+}

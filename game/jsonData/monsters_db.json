@@ -1,0 +1,362 @@
+{
+  "monsters": [
+    {
+      "id": "agile_zombie",
+      "name": "敏捷型喪屍",
+      "avatar": "images/agile_zombie.jpg",
+      "image": "images/agile_zombie.jpg",
+      "imageUrl": "images/agile_zombie.jpg",
+      "world_id": "zombie",
+      "position_type": "Frontline",
+      "stats": {
+        "hp": 100,
+        "max_hp": 100,
+        "atk": 20,
+        "def": 12,
+        "speed": 22
+      },
+      "skills": [
+        {
+          "skill_name": "敏捷撲咬",
+          "cost_ap": 2,
+          "damage": 30,
+          "target": "Single_Frontline",
+          "effect": "Bleeding"
+        }
+      ],
+      "drop_table": {
+        "common_drops": [
+          {
+            "item_id": "MAT_ZOMBIE_BLOOD",
+            "item_name": "喪屍血液",
+            "drop_chance": 0.9,
+            "min_quantity": 1,
+            "max_quantity": 2
+          }
+        ],
+        "rare_drops": []
+      }
+    },
+    {
+      "id": "MOB_ZOMBIE_01",
+      "name": "變異腐屍",
+      "avatar": "images/zombie.jpg",
+      "image": "images/zombie.jpg",
+      "imageUrl": "images/zombie.jpg",
+      "world_id": "zombie",
+      "position_type": "Frontline",
+      "stats": {
+        "hp": 100,
+        "max_hp": 100,
+        "atk": 15,
+        "def": 10,
+        "speed": 8
+      },
+      "skills": [
+        {
+          "skill_name": "腐蝕抓咬",
+          "cost_ap": 2,
+          "damage": 40,
+          "target": "Single_Frontline",
+          "effect": "Apply_Poison_3_Turns"
+        },
+        {
+          "skill_name": "屍毒咆哮",
+          "cost_ap": 3,
+          "damage": 20,
+          "target": "All_Party",
+          "effect": "Reduce_Party_AP_1"
+        }
+      ],
+      "drop_table": {
+        "common_drops": [
+          {
+            "item_id": "MAT_ZOMBIE_BLOOD",
+            "item_name": "喪屍血液",
+            "drop_chance": 0.85,
+            "min_quantity": 1,
+            "max_quantity": 3
+          }
+        ],
+        "rare_drops": [
+          {
+            "item_id": "EQ_TECH_HELMET_01",
+            "item_name": "戰術防毒過濾面具",
+            "drop_chance": 0.10,
+            "min_quantity": 1,
+            "max_quantity": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "MOB_ZOMBIE_02",
+      "name": "生化突變爪魔",
+      "avatar": "images/agile_zombie.jpg",
+      "world_id": "zombie",
+      "position_type": "Frontline",
+      "stats": {
+        "hp": 140,
+        "max_hp": 140,
+        "atk": 22,
+        "def": 15,
+        "speed": 16
+      },
+      "skills": [
+        {
+          "skill_name": "利爪撕裂",
+          "cost_ap": 2,
+          "damage": 50,
+          "target": "Single_Frontline",
+          "effect": "Bleeding"
+        }
+      ],
+      "drop_table": {
+        "common_drops": [
+          {
+            "item_id": "MAT_ZOMBIE_BLOOD",
+            "item_name": "喪屍血液",
+            "drop_chance": 0.9,
+            "min_quantity": 2,
+            "max_quantity": 4
+          }
+        ],
+        "rare_drops": []
+      }
+    },
+    {
+      "id": "MOB_LICKER_01",
+      "name": "變異長舌舔食者",
+      "avatar": "images/core_idle.PNG",
+      "world_id": "zombie",
+      "position_type": "Backline_Hunter",
+      "stats": {
+        "hp": 250,
+        "max_hp": 250,
+        "atk": 40,
+        "def": 20,
+        "speed": 18
+      },
+      "skills": [
+        {
+          "skill_name": "長舌刺穿",
+          "cost_ap": 2,
+          "damage": 85,
+          "target": "Bypass_Frontline_Single_Backline",
+          "effect": "Bleeding"
+        },
+        {
+          "skill_name": "飛撲狂撕",
+          "cost_ap": 3,
+          "damage": 110,
+          "target": "Single_Target",
+          "effect": "Heavy_Damage"
+        }
+      ],
+      "drop_table": {
+        "common_drops": [
+          {
+            "item_id": "MAT_ZOMBIE_BLOOD",
+            "item_name": "喪屍血液",
+            "drop_chance": 1.0,
+            "min_quantity": 3,
+            "max_quantity": 6
+          },
+          {
+            "item_id": "MAT_TECH_PARTS",
+            "item_name": "高精密度科技零件",
+            "drop_chance": 0.75,
+            "min_quantity": 1,
+            "max_quantity": 2
+          }
+        ],
+        "rare_drops": [
+          {
+            "item_id": "MAT_HIGH_MUTANT_GENE",
+            "item_name": "高階變異基因片段",
+            "drop_chance": 0.18,
+            "min_quantity": 1,
+            "max_quantity": 1
+          },
+          {
+            "item_id": "CURRENCY_FATE_SHARD_EPIC",
+            "item_name": "稀有命運碎片",
+            "drop_chance": 0.10,
+            "min_quantity": 1,
+            "max_quantity": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "MOB_TYRANT_01",
+      "name": "極光暴君原型機",
+      "avatar": "images/core_idle.PNG",
+      "world_id": "zombie",
+      "position_type": "Boss",
+      "stats": {
+        "hp": 450,
+        "max_hp": 450,
+        "atk": 55,
+        "def": 30,
+        "speed": 12
+      },
+      "skills": [
+        {
+          "skill_name": "巨爪粉碎擊",
+          "cost_ap": 2,
+          "damage": 130,
+          "target": "Single_Frontline",
+          "effect": "Stun_1_Turn"
+        },
+        {
+          "skill_name": "暴君衝撞",
+          "cost_ap": 4,
+          "damage": 90,
+          "target": "All_Party",
+          "effect": "Knockback"
+        }
+      ],
+      "drop_table": {
+        "common_drops": [
+          {
+            "item_id": "MAT_ZOMBIE_BLOOD",
+            "item_name": "喪屍血液",
+            "drop_chance": 1.0,
+            "min_quantity": 10,
+            "max_quantity": 20
+          },
+          {
+            "item_id": "MAT_TECH_PARTS",
+            "item_name": "高精密度科技零件",
+            "drop_chance": 1.0,
+            "min_quantity": 3,
+            "max_quantity": 6
+          }
+        ],
+        "rare_drops": [
+          {
+            "item_id": "MAT_HIGH_MUTANT_GENE",
+            "item_name": "高階變異基因片段",
+            "drop_chance": 0.60,
+            "min_quantity": 2,
+            "max_quantity": 3
+          },
+          {
+            "item_id": "CURRENCY_FATE_SHARD_EPIC",
+            "item_name": "稀有命運碎片",
+            "drop_chance": 0.50,
+            "min_quantity": 1,
+            "max_quantity": 2
+          },
+          {
+            "item_id": "EQ_TECH_ARMOR_01",
+            "item_name": "奈米仿生全封閉作戰服",
+            "drop_chance": 0.25,
+            "min_quantity": 1,
+            "max_quantity": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "MOB_ALIEN_01",
+      "name": "深空成體異形",
+      "world_id": "space",
+      "position_type": "Frontline",
+      "stats": {
+        "hp": 480,
+        "max_hp": 480,
+        "atk": 75,
+        "def": 25,
+        "speed": 22
+      },
+      "skills": [
+        {
+          "skill_name": "內巢齒彈射",
+          "cost_ap": 2,
+          "damage": 95,
+          "target": "Single_Target",
+          "effect": "Armor_Penetration"
+        }
+      ],
+      "drop_table": {
+        "common_drops": [
+          {
+            "item_id": "MAT_TECH_PARTS",
+            "item_name": "高精密度科技零件",
+            "drop_chance": 0.90,
+            "min_quantity": 2,
+            "max_quantity": 4
+          }
+        ],
+        "rare_drops": [
+          {
+            "item_id": "EQ_MOUNT_JETPACK_01",
+            "item_name": "戰術向量推進噴射背包",
+            "drop_chance": 0.12,
+            "min_quantity": 1,
+            "max_quantity": 1
+          },
+          {
+            "item_id": "CURRENCY_FATE_SHARD_EPIC",
+            "item_name": "稀有命運碎片",
+            "drop_chance": 0.15,
+            "min_quantity": 1,
+            "max_quantity": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "MOB_GHOST_01",
+      "name": "怨念厲鬼",
+      "world_id": "paranormal",
+      "position_type": "Backline_Hunter",
+      "stats": {
+        "hp": 400,
+        "max_hp": 400,
+        "atk": 65,
+        "def": 0,
+        "speed": 15
+      },
+      "skills": [
+        {
+          "skill_name": "厲鬼噬魂",
+          "cost_ap": 2,
+          "damage": 75,
+          "target": "Single_Target",
+          "effect": "Drain_MP_10"
+        }
+      ],
+      "drop_table": {
+        "common_drops": [
+          {
+            "item_id": "item_mp_potion",
+            "item_name": "強效精神穩定劑",
+            "drop_chance": 0.80,
+            "min_quantity": 1,
+            "max_quantity": 2
+          }
+        ],
+        "rare_drops": [
+          {
+            "item_id": "EQ_MAGIC_NECKLACE_01",
+            "item_name": "定魂辟邪古玉佩",
+            "drop_chance": 0.15,
+            "min_quantity": 1,
+            "max_quantity": 1
+          },
+          {
+            "item_id": "CURRENCY_FATE_SHARD_EPIC",
+            "item_name": "稀有命運碎片",
+            "drop_chance": 0.12,
+            "min_quantity": 1,
+            "max_quantity": 1
+          }
+        ]
+      }
+    }
+  ]
+}
+

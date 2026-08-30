@@ -2,14 +2,38 @@
   "bloodlines": [
     {
       "id": "vampire_bloodline",
+      "family": "vampire",
       "name": "變異吸血鬼血統",
       "name_key": "blood_vampire_name",
-      "desc": "《無限恐怖》鄭吒經典初期血統。具備強大身體素質、高速自癒與夜視能力，能操縱暗紅血族能量釋放致命戰技並汲取敵方生命。",
-      "desc_key": "blood_vampire_desc",
+      "tags": ["西方神秘", "黑夜眷族", "生命吸取", "近戰肉搏", "高速自癒"],
+      "desc": "《無限恐怖》經典暗夜血統。具備強大身體素質、高速自癒與夜視能力，能操縱暗紅血族能量釋放致命戰技並汲取敵方生命。",
       "energy_attribute": "blood_max",
       "energy_current": "blood_current",
       "energy_name": "血族能量",
       "grades": {
+        "D": {
+          "name": "D級 變異吸血鬼初擁僕從",
+          "points": 1000,
+          "fate_shard": "D",
+          "attributes": {
+            "hp": 50,
+            "max_hp": 50,
+            "blood_max": 40,
+            "blood_current": 40,
+            "regeneration": 1
+          },
+          "skills": [
+            {
+              "id": "vampire_bite",
+              "name": "嗜血撕咬",
+              "energy_type": "blood_current",
+              "energy_cost": 10,
+              "damage": 50,
+              "heal": 15,
+              "desc": "消耗 10 點血能，撕咬目標造成 50 點傷害並汲取 15 點 HP。"
+            }
+          ]
+        },
         "C": {
           "name": "C級 變異吸血鬼男爵",
           "points": 2500,
@@ -25,26 +49,20 @@
             {
               "id": "blood_wrath",
               "name": "血之狂暴",
-              "name_key": "skill_blood_wrath_name",
-              "desc": "消耗 20 點血族能量，凝聚暗紅血芒爪擊敵人，造成 80 點傷害並吸取 20 點 HP。",
-              "desc_key": "skill_blood_wrath_desc",
               "energy_type": "blood_current",
               "energy_cost": 20,
               "damage": 80,
               "heal": 20,
-              "effect_key": "skill_blood_wrath_effect"
+              "desc": "消耗 20 點血族能量，凝聚暗紅血芒爪擊敵人，造成 80 點傷害並吸取 20 點 HP。"
             },
             {
               "id": "bat_transform",
               "name": "血蝠幻影襲",
-              "name_key": "skill_bat_transform_name",
-              "desc": "消耗 15 點血族能量，化為無數血蝠穿透目標，造成 50 點穿透傷害並恢復 15 點 HP。",
-              "desc_key": "skill_bat_transform_desc",
               "energy_type": "blood_current",
               "energy_cost": 15,
               "damage": 50,
               "heal": 15,
-              "effect_key": "skill_bat_transform_effect"
+              "desc": "消耗 15 點血族能量，化為無數血蝠穿透目標，造成 50 點穿透傷害並恢復 15 點 HP。"
             }
           ]
         },
@@ -63,27 +81,21 @@
             {
               "id": "dark_wings",
               "name": "暗夜血翼狂嵐",
-              "name_key": "skill_dark_wings_name",
-              "desc": "消耗 40 點血族能量，展開巨大暗紅血翼橫掃戰場，造成 160 點重創傷害並吸取 35 點 HP。",
-              "desc_key": "skill_dark_wings_desc",
               "energy_type": "blood_current",
               "energy_cost": 40,
               "damage": 160,
               "heal": 35,
-              "effect_key": "skill_dark_wings_effect"
+              "desc": "消耗 40 點血族能量，展開巨大暗紅血翼橫掃戰場，造成 160 點重創傷害並吸取 35 點 HP。"
             },
             {
               "id": "blood_shield",
               "name": "血族護體屏障",
-              "name_key": "skill_blood_shield_name",
-              "desc": "消耗 30 點血族能量，以鮮血構築堅實結界，立即為自身回復 65 點 HP 並強化防禦。",
-              "desc_key": "skill_blood_shield_desc",
               "energy_type": "blood_current",
               "energy_cost": 30,
               "damage": 0,
               "heal": 65,
               "is_heal": true,
-              "effect_key": "skill_blood_shield_effect"
+              "desc": "消耗 30 點血族能量，以鮮血構築堅實結界，立即為自身回復 65 點 HP 並強化防禦。"
             }
           ]
         },
@@ -102,26 +114,20 @@
             {
               "id": "blood_hell",
               "name": "沸血地獄風暴",
-              "name_key": "skill_blood_hell_name",
-              "desc": "消耗 80 點血族能量，引爆大範圍血海風暴，造成 420 點毀滅傷害並狂吸 80 點 HP。",
-              "desc_key": "skill_blood_hell_desc",
               "energy_type": "blood_current",
               "energy_cost": 80,
               "damage": 420,
               "heal": 80,
-              "effect_key": "skill_blood_hell_effect"
+              "desc": "消耗 80 點血族能量，引爆大範圍血海風暴，造成 420 點毀滅傷害並狂吸 80 點 HP。"
             },
             {
               "id": "servant_control",
               "name": "血煞穿心刺",
-              "name_key": "skill_servant_control_name",
-              "desc": "消耗 60 點血族能量，凝聚實體血槍貫穿敵人心臟，造成 280 點致命傷害並吸取 50 點 HP。",
-              "desc_key": "skill_servant_control_desc",
               "energy_type": "blood_current",
               "energy_cost": 60,
               "damage": 280,
               "heal": 50,
-              "effect_key": "skill_servant_control_effect"
+              "desc": "消耗 60 點血族能量，凝聚實體血槍貫穿敵人心臟，造成 280 點致命傷害並吸取 50 點 HP。"
             }
           ]
         },
@@ -140,26 +146,165 @@
             {
               "id": "ancestral_blood_domain",
               "name": "始祖血海湮滅領域",
-              "name_key": "skill_ancestral_blood_domain_name",
-              "desc": "消耗 150 點血族能量，召喚無邊始祖血海淹沒敵方，造成 1100 點神級傷害並汲取 200 點 HP！",
-              "desc_key": "skill_ancestral_blood_domain_desc",
               "energy_type": "blood_current",
               "energy_cost": 150,
               "damage": 1100,
               "heal": 200,
-              "effect_key": "skill_ancestral_blood_domain_effect"
+              "desc": "消耗 150 點血族能量，召喚無邊始祖血海淹沒敵方，造成 1100 點神級傷害並汲取 200 點 HP！"
             },
             {
               "id": "immortal_true_form",
               "name": "不朽真身·永夜再生",
-              "name_key": "skill_immortal_true_form_name",
-              "desc": "消耗 120 點血族能量，進入真祖不滅姿態，對敵方造成 850 點暗夜打擊並狂暴自癒 300 點 HP！",
-              "desc_key": "skill_immortal_true_form_desc",
               "energy_type": "blood_current",
               "energy_cost": 120,
               "damage": 850,
               "heal": 300,
-              "effect_key": "skill_immortal_true_form_effect"
+              "desc": "消耗 120 點血族能量，進入真祖不滅姿態，對敵方造成 850 點暗夜打擊並狂暴自癒 300 點 HP！"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "angel_bloodline",
+      "family": "angel",
+      "name": "聖潔熾天使血統",
+      "name_key": "blood_angel_name",
+      "tags": ["西方神秘", "神聖光明", "飛行標籤", "神聖治癒", "黑暗剋星"],
+      "desc": "純淨神聖的光之天使化身。自帶潔白神羽羽翼（賦予【飛行標籤】），對一切不死、黑暗與惡魔生物造成全額屬性壓制與神聖真實傷害！",
+      "is_flight": true,
+      "anti_darkness": 0.2,
+      "energy_attribute": "mental_max",
+      "energy_current": "mental_current",
+      "energy_name": "聖光神力",
+      "grades": {
+        "D": {
+          "name": "D級 雙翼光之天使",
+          "points": 1000,
+          "fate_shard": "D",
+          "attributes": {
+            "hp": 60,
+            "max_hp": 60,
+            "mental_max": 60,
+            "mental_current": 60,
+            "mp": 40,
+            "max_mp": 40
+          },
+          "skills": [
+            {
+              "id": "holy_light_bullet",
+              "name": "聖光懲戒矢",
+              "energy_type": "mental_current",
+              "energy_cost": 12,
+              "damage": 65,
+              "heal": 10,
+              "desc": "消耗 12 點聖光，射出神聖光彈造成 65 點光系傷害並為自身回復 10 HP。"
+            }
+          ]
+        },
+        "C": {
+          "name": "C級 四翼主天使",
+          "points": 3000,
+          "fate_shard": "C",
+          "attributes": {
+            "hp": 150,
+            "max_hp": 150,
+            "mental_max": 120,
+            "mental_current": 120,
+            "mp": 80,
+            "max_mp": 80
+          },
+          "skills": [
+            {
+              "id": "holy_sanctuary",
+              "name": "神聖庇護結界",
+              "energy_type": "mental_current",
+              "energy_cost": 25,
+              "damage": 0,
+              "heal": 80,
+              "is_heal": true,
+              "desc": "消耗 25 點聖光展開光之翼陣，回復 80 HP 並淨化全體負面異常。"
+            },
+            {
+              "id": "judgement_blade",
+              "name": "裁決光輝之劍",
+              "energy_type": "mental_current",
+              "energy_cost": 25,
+              "damage": 110,
+              "heal": 0,
+              "desc": "召喚光之巨劍斬擊，造成 110 點神聖破邪傷害（對不死怪物翻倍）。"
+            }
+          ]
+        },
+        "B": {
+          "name": "B級 六翼座天使",
+          "points": 6000,
+          "fate_shard": "B",
+          "attributes": {
+            "hp": 350,
+            "max_hp": 350,
+            "mental_max": 220,
+            "mental_current": 220,
+            "mp": 150,
+            "max_mp": 150
+          },
+          "skills": [
+            {
+              "id": "angelic_wrath",
+              "name": "天國審判光雨",
+              "energy_type": "mental_current",
+              "energy_cost": 50,
+              "damage": 260,
+              "heal": 40,
+              "desc": "漫天聖羽化為光雨傾瀉，造成 260 點全屏神聖打擊並自癒 40 HP。"
+            }
+          ]
+        },
+        "A": {
+          "name": "A級 八翼智天使",
+          "points": 12000,
+          "fate_shard": "A",
+          "attributes": {
+            "hp": 800,
+            "max_hp": 800,
+            "mental_max": 420,
+            "mental_current": 420,
+            "mp": 300,
+            "max_mp": 300
+          },
+          "skills": [
+            {
+              "id": "archangel_grace",
+              "name": "大天使長·神之威光",
+              "energy_type": "mental_current",
+              "energy_cost": 90,
+              "damage": 600,
+              "heal": 150,
+              "desc": "釋放大天使神威，造成 600 點神聖真傷並強效救贖自癒 150 HP！"
+            }
+          ]
+        },
+        "S": {
+          "name": "S級 十二翼熾天使·神之右手",
+          "points": 28000,
+          "fate_shard": "S",
+          "attributes": {
+            "hp": 1800,
+            "max_hp": 1800,
+            "mental_max": 800,
+            "mental_current": 800,
+            "mp": 600,
+            "max_mp": 600
+          },
+          "skills": [
+            {
+              "id": "genesis_holy_wrath",
+              "name": "創世紀·天堂聖裁浩劫",
+              "energy_type": "mental_current",
+              "energy_cost": 180,
+              "damage": 1450,
+              "heal": 350,
+              "desc": "引動天堂神國降臨！造成 1450 點超越維度的神聖毀滅並治癒 350 HP！"
             }
           ]
         }
@@ -167,14 +312,38 @@
     },
     {
       "id": "werewolf_bloodline",
+      "family": "werewolf",
       "name": "狂暴狼人血統",
       "name_key": "blood_werewolf_name",
+      "tags": ["狂暴變身", "野性嗜血", "近戰爆發", "肉體強化", "霸體撕裂"],
       "desc": "純粹的肉體力量與狂暴氣血化身！極致強化近戰爆發、生命韌性與嗜血本能，能在搏殺中愈戰愈勇。",
-      "desc_key": "blood_werewolf_desc",
       "energy_attribute": "qi_max",
       "energy_current": "qi_current",
       "energy_name": "氣血之力",
       "grades": {
+        "D": {
+          "name": "D級 狼族幼獸戰士",
+          "points": 1000,
+          "fate_shard": "D",
+          "attributes": {
+            "hp": 60,
+            "max_hp": 60,
+            "qi_max": 40,
+            "qi_current": 40,
+            "regeneration": 1
+          },
+          "skills": [
+            {
+              "id": "wolf_scratch",
+              "name": "野狼撕咬",
+              "energy_type": "qi_current",
+              "energy_cost": 10,
+              "damage": 55,
+              "heal": 0,
+              "desc": "消耗 10 點氣血撲擊敵人，造成 55 點近戰傷害。"
+            }
+          ]
+        },
         "C": {
           "name": "C級 狂暴狼人戰士",
           "points": 2500,
@@ -190,26 +359,20 @@
             {
               "id": "wolf_claw_slash",
               "name": "裂傷狼爪重擊",
-              "name_key": "skill_wolf_claw_slash_name",
-              "desc": "消耗 20 點氣血，雙爪撕裂敵人護甲，造成 85 點物理穿甲傷害。",
-              "desc_key": "skill_wolf_claw_slash_desc",
               "energy_type": "qi_current",
               "energy_cost": 20,
               "damage": 85,
               "heal": 0,
-              "effect_key": "skill_wolf_claw_slash_effect"
+              "desc": "消耗 20 點氣血，雙爪撕裂敵人護甲，造成 85 點物理穿甲傷害。"
             },
             {
               "id": "howl_of_terror",
               "name": "恐懼狼嚎衝擊",
-              "name_key": "skill_howl_of_terror_name",
-              "desc": "消耗 15 點氣血，發出震懾靈魂的狼嚎，造成 55 點氣血衝擊傷害。",
-              "desc_key": "skill_howl_of_terror_desc",
               "energy_type": "qi_current",
               "energy_cost": 15,
               "damage": 55,
               "heal": 0,
-              "effect_key": "skill_howl_of_terror_effect"
+              "desc": "消耗 15 點氣血，發出震懾靈魂的狼嚎，造成 55 點氣血衝擊傷害。"
             }
           ]
         },
@@ -228,27 +391,21 @@
             {
               "id": "bloody_carnage",
               "name": "嗜血狂戮風暴",
-              "name_key": "skill_bloody_carnage_name",
-              "desc": "消耗 40 點氣血，化作狂暴殘影撕咬敵人，造成 185 點狂暴傷害。",
-              "desc_key": "skill_bloody_carnage_desc",
               "energy_type": "qi_current",
               "energy_cost": 40,
               "damage": 185,
               "heal": 0,
-              "effect_key": "skill_bloody_carnage_effect"
+              "desc": "消耗 40 點氣血，化作狂暴殘影撕咬敵人，造成 185 點狂暴傷害。"
             },
             {
               "id": "feral_instinct",
               "name": "野性覺醒·狂癒",
-              "name_key": "skill_feral_instinct_name",
-              "desc": "消耗 30 點氣血，刺激狼族再生核心，立即回復 75 點 HP。",
-              "desc_key": "skill_feral_instinct_desc",
               "energy_type": "qi_current",
               "energy_cost": 30,
               "damage": 0,
               "heal": 75,
               "is_heal": true,
-              "effect_key": "skill_feral_instinct_effect"
+              "desc": "消耗 30 點氣血，刺激狼族再生核心，立即回復 75 點 HP。"
             }
           ]
         },
@@ -267,26 +424,11 @@
             {
               "id": "lunar_rend",
               "name": "滿月狂嵐撕裂斬",
-              "name_key": "skill_lunar_rend_name",
-              "desc": "消耗 80 點氣血，引動滿月狂暴之力切裂虛空，造成 460 點毀滅巨創！",
-              "desc_key": "skill_lunar_rend_desc",
               "energy_type": "qi_current",
               "energy_cost": 80,
               "damage": 460,
               "heal": 0,
-              "effect_key": "skill_lunar_rend_effect"
-            },
-            {
-              "id": "beast_rage_burst",
-              "name": "獸皇震天咆哮波",
-              "name_key": "skill_beast_rage_burst_name",
-              "desc": "消耗 60 點氣血，吐出高密度氣血音爆，造成 320 點真實傷害並吸取 40 點 HP。",
-              "desc_key": "skill_beast_rage_burst_desc",
-              "energy_type": "qi_current",
-              "energy_cost": 60,
-              "damage": 320,
-              "heal": 40,
-              "effect_key": "skill_beast_rage_burst_effect"
+              "desc": "消耗 80 點氣血，引動滿月狂暴之力切裂虛空，造成 460 點毀滅巨創！"
             }
           ]
         },
@@ -305,26 +447,11 @@
             {
               "id": "fenrir_world_devourer",
               "name": "噬界魔狼·終焉一擊",
-              "name_key": "skill_fenrir_world_devourer_name",
-              "desc": "消耗 160 點氣血，釋放吞噬天地的終焉之咬，造成 1200 點核爆級物理真傷！",
-              "desc_key": "skill_fenrir_world_devourer_desc",
               "energy_type": "qi_current",
               "energy_cost": 160,
               "damage": 1200,
               "heal": 0,
-              "effect_key": "skill_fenrir_world_devourer_effect"
-            },
-            {
-              "id": "immortal_beast_body",
-              "name": "萬獸之祖·不滅神軀",
-              "name_key": "skill_immortal_beast_body_name",
-              "desc": "消耗 120 點氣血，肉體硬度達到神級，轟出 750 點重擊並爆發自癒 280 點 HP！",
-              "desc_key": "skill_immortal_beast_body_desc",
-              "energy_type": "qi_current",
-              "energy_cost": 120,
-              "damage": 750,
-              "heal": 280,
-              "effect_key": "skill_immortal_beast_body_effect"
+              "desc": "消耗 160 點氣血，釋放吞噬天地的終焉之咬，造成 1200 點核爆級物理真傷！"
             }
           ]
         }
@@ -332,14 +459,39 @@
     },
     {
       "id": "martial_qi_bloodline",
+      "family": "martial_qi",
       "name": "混元內力/武道氣功",
       "name_key": "blood_martial_qi_name",
-      "desc": "《無限恐怖》東方武道與修真體系基石。打通周天經脈，修煉純陽剛猛與混元真氣，內外兼修，招式大開大闔。",
-      "desc_key": "blood_martial_qi_desc",
+      "tags": ["東方修真", "武道氣功", "純陽內力", "全能平衡", "罡氣護體"],
+      "desc": "《無限恐怖》經典東方武道與修真體系基石。打通周天經脈，修煉純陽剛猛與混元真氣，內外兼修，招式大開大闔。",
       "energy_attribute": "neili_max",
       "energy_current": "neili_current",
       "energy_name": "混元內力",
       "grades": {
+        "D": {
+          "name": "D級 吐納導引初階內勁",
+          "points": 1000,
+          "fate_shard": "D",
+          "attributes": {
+            "hp": 45,
+            "max_hp": 45,
+            "neili_max": 45,
+            "neili_current": 45,
+            "mp": 20,
+            "max_mp": 20
+          },
+          "skills": [
+            {
+              "id": "basic_palm",
+              "name": "開山劈石掌",
+              "energy_type": "neili_current",
+              "energy_cost": 10,
+              "damage": 55,
+              "heal": 0,
+              "desc": "消耗 10 點內力打出寸勁，造成 55 點震盪傷害。"
+            }
+          ]
+        },
         "C": {
           "name": "C級 初級混元內力",
           "points": 2500,
@@ -356,27 +508,21 @@
             {
               "id": "iron_palm_strike",
               "name": "混元鐵砂劈空掌",
-              "name_key": "skill_iron_palm_strike_name",
-              "desc": "消耗 20 點內力，催動純厚掌力凌空拍擊，造成 90 點剛猛震盪傷害。",
-              "desc_key": "skill_iron_palm_strike_desc",
               "energy_type": "neili_current",
               "energy_cost": 20,
               "damage": 90,
               "heal": 0,
-              "effect_key": "skill_iron_palm_strike_effect"
+              "desc": "消耗 20 點內力，催動純厚掌力凌空拍擊，造成 90 點剛猛震盪傷害。"
             },
             {
               "id": "qi_shield",
               "name": "先天護體罡氣",
-              "name_key": "skill_qi_shield_name",
-              "desc": "消耗 18 點內力，真氣護住心脈與周身，回復 55 點 HP 並平復氣息。",
-              "desc_key": "skill_qi_shield_desc",
               "energy_type": "neili_current",
               "energy_cost": 18,
               "damage": 0,
               "heal": 55,
               "is_heal": true,
-              "effect_key": "skill_qi_shield_effect"
+              "desc": "消耗 18 點內力，真氣護住心脈與周身，回復 55 點 HP 並平復氣息。"
             }
           ]
         },
@@ -396,26 +542,11 @@
             {
               "id": "lightning_fist",
               "name": "奔雷破空拳",
-              "name_key": "skill_lightning_fist_name",
-              "desc": "消耗 40 點內力，拳勁如雷霆炸裂，造成 200 點雷系內勁穿透傷害。",
-              "desc_key": "skill_lightning_fist_desc",
               "energy_type": "neili_current",
               "energy_cost": 40,
               "damage": 200,
               "heal": 0,
-              "effect_key": "skill_lightning_fist_effect"
-            },
-            {
-              "id": "six_pulse_sword_qi",
-              "name": "無形六脈神劍氣",
-              "name_key": "skill_six_pulse_sword_qi_name",
-              "desc": "消耗 45 點內力，十指連彈激射無形劍氣，造成 215 點遠程鋒銳傷害。",
-              "desc_key": "skill_six_pulse_sword_qi_desc",
-              "energy_type": "neili_current",
-              "energy_cost": 45,
-              "damage": 215,
-              "heal": 0,
-              "effect_key": "skill_six_pulse_sword_qi_effect"
+              "desc": "消耗 40 點內力，拳勁如雷霆炸裂，造成 200 點雷系內勁穿透傷害。"
             }
           ]
         },
@@ -435,26 +566,11 @@
             {
               "id": "nine_yang_divine_blast",
               "name": "九陽烈火焚天罡",
-              "name_key": "skill_nine_yang_divine_blast_name",
-              "desc": "消耗 85 點內力，釋放九陽純陽爆發烈焰，造成 490 點陽炎毀滅傷害！",
-              "desc_key": "skill_nine_yang_divine_blast_desc",
               "energy_type": "neili_current",
               "energy_cost": 85,
               "damage": 490,
               "heal": 0,
-              "effect_key": "skill_nine_yang_divine_blast_effect"
-            },
-            {
-              "id": "tai_chi_spiral_burst",
-              "name": "太極兩儀太虛掌",
-              "name_key": "skill_tai_chi_spiral_burst_name",
-              "desc": "消耗 70 點內力，陰陽相生相剋，造成 370 點暗勁並藉由太極調息自癒 110 點 HP！",
-              "desc_key": "skill_tai_chi_spiral_burst_desc",
-              "energy_type": "neili_current",
-              "energy_cost": 70,
-              "damage": 370,
-              "heal": 110,
-              "effect_key": "skill_tai_chi_spiral_burst_effect"
+              "desc": "消耗 85 點內力，釋放九陽純陽爆發烈焰，造成 490 點陽炎毀滅傷害！"
             }
           ]
         },
@@ -474,26 +590,11 @@
             {
               "id": "wuji_cosmic_palm",
               "name": "混元無極造化神印",
-              "name_key": "skill_wuji_cosmic_palm_name",
-              "desc": "消耗 160 點內力，引動天地造化一掌拍出，粉碎虛空，造成 1300 點開天真傷！",
-              "desc_key": "skill_wuji_cosmic_palm_desc",
               "energy_type": "neili_current",
               "energy_cost": 160,
               "damage": 1300,
               "heal": 0,
-              "effect_key": "skill_wuji_cosmic_palm_effect"
-            },
-            {
-              "id": "pure_yang_immortal_body",
-              "name": "純陽萬劫不滅金身",
-              "name_key": "skill_pure_yang_immortal_body_name",
-              "desc": "消耗 120 點內力，肉身成聖，爆發 820 點浩瀚佛道罡氣並瞬間大回血 360 點 HP！",
-              "desc_key": "skill_pure_yang_immortal_body_desc",
-              "energy_type": "neili_current",
-              "energy_cost": 120,
-              "damage": 820,
-              "heal": 360,
-              "effect_key": "skill_pure_yang_immortal_body_effect"
+              "desc": "消耗 160 點內力，引動天地造化一掌拍出，粉碎虛空，造成 1300 點開天真傷！"
             }
           ]
         }
@@ -501,14 +602,39 @@
     },
     {
       "id": "elf_archer_bloodline",
+      "family": "elf_archer",
       "name": "精靈射手/精靈祭司",
       "name_key": "blood_elf_name",
-      "desc": "《無限恐怖》零點/詹嵐系經典血統。擁有超凡視距、精神力場掌控與自然親和力，精於遠程致命爆頭與團隊守護。",
-      "desc_key": "blood_elf_desc",
+      "tags": ["精靈魔法", "精神力場", "自然守護", "遠程狙擊", "神聖治癒"],
+      "desc": "《無限恐怖》經典遠程精神特化血統。擁有超凡視距、精神力場掌控與自然親和力，精於遠程致命爆頭與團隊守護。",
       "energy_attribute": "mental_max",
       "energy_current": "mental_current",
       "energy_name": "精神力場",
       "grades": {
+        "D": {
+          "name": "D級 精靈森林見習射手",
+          "points": 1000,
+          "fate_shard": "D",
+          "attributes": {
+            "hp": 40,
+            "max_hp": 40,
+            "mental_max": 45,
+            "mental_current": 45,
+            "mp": 30,
+            "max_mp": 30
+          },
+          "skills": [
+            {
+              "id": "basic_arrow",
+              "name": "精靈精準箭",
+              "energy_type": "mental_current",
+              "energy_cost": 10,
+              "damage": 55,
+              "heal": 0,
+              "desc": "消耗 10 點精神力射出穿甲箭矢，造成 55 點遠程傷害。"
+            }
+          ]
+        },
         "C": {
           "name": "C級 初級精靈巡林射手",
           "points": 2500,
@@ -525,27 +651,21 @@
             {
               "id": "wind_arrow_snipe",
               "name": "疾風穿甲箭",
-              "name_key": "skill_wind_arrow_snipe_name",
-              "desc": "消耗 18 點精神力，鎖定敵方致命盲點射出狂風之箭，造成 90 點高額穿甲傷害。",
-              "desc_key": "skill_wind_arrow_snipe_desc",
               "energy_type": "mental_current",
               "energy_cost": 18,
               "damage": 90,
               "heal": 0,
-              "effect_key": "skill_wind_arrow_snipe_effect"
+              "desc": "消耗 18 點精神力，鎖定敵方致命盲點射出狂風之箭，造成 90 點高額穿甲傷害。"
             },
             {
               "id": "spirit_focus",
               "name": "自然凝神冥想",
-              "name_key": "skill_spirit_focus_name",
-              "desc": "消耗 15 點精神力，引導自然生機，為自身回復 50 點 HP 與 25 點 MP。",
-              "desc_key": "skill_spirit_focus_desc",
               "energy_type": "mental_current",
               "energy_cost": 15,
               "damage": 0,
               "heal": 50,
               "is_heal": true,
-              "effect_key": "skill_spirit_focus_effect"
+              "desc": "消耗 15 點精神力，引導自然生機，為自身回復 50 點 HP 與 25 點 MP。"
             }
           ]
         },
@@ -565,27 +685,11 @@
             {
               "id": "moonlight_arrow_barrage",
               "name": "月華連珠星矢風暴",
-              "name_key": "skill_moonlight_arrow_barrage_name",
-              "desc": "消耗 40 點精神力，連續射出三道月華光矢，造成 205 點魔法爆裂傷害。",
-              "desc_key": "skill_moonlight_arrow_barrage_desc",
               "energy_type": "mental_current",
               "energy_cost": 40,
               "damage": 205,
               "heal": 0,
-              "effect_key": "skill_moonlight_arrow_barrage_effect"
-            },
-            {
-              "id": "nature_barrier",
-              "name": "月神翡翠護盾",
-              "name_key": "skill_nature_barrier_name",
-              "desc": "消耗 35 點精神力，張開翡翠結界，回復 80 點 HP 並極大提升精神抗性。",
-              "desc_key": "skill_nature_barrier_desc",
-              "energy_type": "mental_current",
-              "energy_cost": 35,
-              "damage": 0,
-              "heal": 80,
-              "is_heal": true,
-              "effect_key": "skill_nature_barrier_effect"
+              "desc": "消耗 40 點精神力，連續射出三道月華光矢，造成 205 點魔法爆裂傷害。"
             }
           ]
         },
@@ -605,27 +709,11 @@
             {
               "id": "solar_flare_arrow",
               "name": "逐日烈陽破曉神箭",
-              "name_key": "skill_solar_flare_arrow_name",
-              "desc": "消耗 80 點精神力，射出凝聚太陽神輝的一箭，造成 500 點真實光系傷害！",
-              "desc_key": "skill_solar_flare_arrow_desc",
               "energy_type": "mental_current",
               "energy_cost": 80,
               "damage": 500,
               "heal": 0,
-              "effect_key": "skill_solar_flare_arrow_effect"
-            },
-            {
-              "id": "world_tree_blessing",
-              "name": "世界樹生命大祈願",
-              "name_key": "skill_world_tree_blessing_name",
-              "desc": "消耗 65 點精神力，溝通世界樹源泉，回復 190 點 HP 並平息負面狀態。",
-              "desc_key": "skill_world_tree_blessing_desc",
-              "energy_type": "mental_current",
-              "energy_cost": 65,
-              "damage": 0,
-              "heal": 190,
-              "is_heal": true,
-              "effect_key": "skill_world_tree_blessing_effect"
+              "desc": "消耗 80 點精神力，射出凝聚太陽神輝的一箭，造成 500 點真實光系傷害！"
             }
           ]
         },
@@ -645,26 +733,11 @@
             {
               "id": "starlight_extinction_arrow",
               "name": "星辰湮滅·極光終焉矢",
-              "name_key": "skill_starlight_extinction_arrow_name",
-              "desc": "消耗 150 點精神力，引動漫天星辰化為湮滅極光，造成 1280 點超越時空的毀滅傷害！",
-              "desc_key": "skill_starlight_extinction_arrow_desc",
               "energy_type": "mental_current",
               "energy_cost": 150,
               "damage": 1280,
               "heal": 0,
-              "effect_key": "skill_starlight_extinction_arrow_effect"
-            },
-            {
-              "id": "genesis_nature_domain",
-              "name": "始源生命神域結界",
-              "name_key": "skill_genesis_nature_domain_name",
-              "desc": "消耗 130 點精神力，展開始源領域，造成 650 點群體聖光衝擊並治癒自身 420 點 HP！",
-              "desc_key": "skill_genesis_nature_domain_desc",
-              "energy_type": "mental_current",
-              "energy_cost": 130,
-              "damage": 650,
-              "heal": 420,
-              "effect_key": "skill_genesis_nature_domain_effect"
+              "desc": "消耗 150 點精神力，引動漫天星辰化為湮滅極光，造成 1280 點超越時空的毀滅傷害！"
             }
           ]
         }
@@ -672,14 +745,39 @@
     },
     {
       "id": "saiyan_bloodline",
+      "family": "saiyan",
       "name": "宇宙戰鬥民族賽亞人",
       "name_key": "blood_saiyan_name",
-      "desc": "遇強則強的宇宙戰鬥狂族！擁有無限潛能、巨猿之力與狂暴氣功波，瀕死恢復後戰鬥力成倍暴漲！",
-      "desc_key": "blood_saiyan_desc",
+      "tags": ["宇宙超能", "賽亞戰士", "氣功巨砲", "極限爆發", "肉體成長", "飛行標籤"],
+      "desc": "遇強則強的宇宙戰鬥狂族！擁有無限潛能、巨猿之力與狂暴氣功波，瀕死恢復後戰鬥力成倍暴漲！高階具備凌空飛行能力！",
+      "is_flight": true,
       "energy_attribute": "qi_max",
       "energy_current": "qi_current",
       "energy_name": "賽亞氣力",
       "grades": {
+        "D": {
+          "name": "D級 賽亞下等戰士後裔",
+          "points": 1200,
+          "fate_shard": "D",
+          "attributes": {
+            "hp": 75,
+            "max_hp": 75,
+            "qi_max": 50,
+            "qi_current": 50,
+            "regeneration": 2
+          },
+          "skills": [
+            {
+              "id": "ki_shot",
+              "name": "單發衝擊氣彈",
+              "energy_type": "qi_current",
+              "energy_cost": 10,
+              "damage": 60,
+              "heal": 0,
+              "desc": "消耗 10 點氣力發射金色氣功彈，造成 60 點爆破傷害。"
+            }
+          ]
+        },
         "C": {
           "name": "C級 低級賽亞人戰士",
           "points": 3000,
@@ -695,26 +793,20 @@
             {
               "id": "ki_blast_combo",
               "name": "賽亞連環氣功彈",
-              "name_key": "skill_ki_blast_combo_name",
-              "desc": "消耗 20 點氣力，雙手連續狂轟金色氣彈，造成 100 點爆破傷害。",
-              "desc_key": "skill_ki_blast_combo_desc",
               "energy_type": "qi_current",
               "energy_cost": 20,
               "damage": 100,
               "heal": 0,
-              "effect_key": "skill_ki_blast_combo_effect"
+              "desc": "消耗 20 點氣力，雙手連續狂轟金色氣彈，造成 100 點爆破傷害。"
             },
             {
               "id": "saiyan_battle_will",
               "name": "戰鬥狂熱激發",
-              "name_key": "skill_saiyan_battle_will_name",
-              "desc": "消耗 15 點氣力，激發體內賽亞戰意，造成 60 點近身痛擊並自癒 30 點 HP。",
-              "desc_key": "skill_saiyan_battle_will_desc",
               "energy_type": "qi_current",
               "energy_cost": 15,
               "damage": 60,
               "heal": 30,
-              "effect_key": "skill_saiyan_battle_will_effect"
+              "desc": "消耗 15 點氣力，激發體內賽亞戰意，造成 60 點近身痛擊並自癒 30 點 HP。"
             }
           ]
         },
@@ -733,26 +825,11 @@
             {
               "id": "kamehameha",
               "name": "龜派蓄力衝擊波",
-              "name_key": "skill_kamehameha_name",
-              "desc": "消耗 50 點氣力，雙手聚氣向前噴射巨大藍白光柱，造成 230 點貫穿破壞傷害。",
-              "desc_key": "skill_kamehameha_desc",
               "energy_type": "qi_current",
               "energy_cost": 50,
               "damage": 230,
               "heal": 0,
-              "effect_key": "skill_kamehameha_effect"
-            },
-            {
-              "id": "great_ape_crush",
-              "name": "巨猿崩山重壓拳",
-              "name_key": "skill_great_ape_crush_name",
-              "desc": "消耗 40 點氣力，以巨猿狂暴巨力向下砸擊，造成 210 點大範圍震盪傷害。",
-              "desc_key": "skill_great_ape_crush_desc",
-              "energy_type": "qi_current",
-              "energy_cost": 40,
-              "damage": 210,
-              "heal": 0,
-              "effect_key": "skill_great_ape_crush_effect"
+              "desc": "消耗 50 點氣力，雙手聚氣向前噴射巨大藍白光柱，造成 230 點貫穿破壞傷害。"
             }
           ]
         },
@@ -771,26 +848,11 @@
             {
               "id": "super_saiyan_burst",
               "name": "超賽金芒·極限衝擊波",
-              "name_key": "skill_super_saiyan_burst_name",
-              "desc": "消耗 90 點氣力，金色氣焰沖天，射出毀天滅地的巨型衝擊波，造成 570 點毀滅傷害！",
-              "desc_key": "skill_super_saiyan_burst_desc",
               "energy_type": "qi_current",
               "energy_cost": 90,
               "damage": 570,
               "heal": 0,
-              "effect_key": "skill_super_saiyan_burst_effect"
-            },
-            {
-              "id": "final_flash",
-              "name": "終極閃光砲 (Final Flash)",
-              "name_key": "skill_final_flash_name",
-              "desc": "消耗 100 點氣力，雙手展開蓄滿全部氣力發射金色雷光巨柱，造成 650 點超絕傷害！",
-              "desc_key": "skill_final_flash_desc",
-              "energy_type": "qi_current",
-              "energy_cost": 100,
-              "damage": 650,
-              "heal": 0,
-              "effect_key": "skill_final_flash_effect"
+              "desc": "消耗 90 點氣力，金色氣焰沖天，射出毀天滅地的巨型衝擊波，造成 570 點毀滅傷害！"
             }
           ]
         },
@@ -809,26 +871,11 @@
             {
               "id": "dragon_fist_explosion",
               "name": "龍拳爆發·真神破界",
-              "name_key": "skill_dragon_fist_explosion_name",
-              "desc": "消耗 180 點氣力，金色巨龍貫穿天地！造成 1550 點宇宙級毀滅打擊！",
-              "desc_key": "skill_dragon_fist_explosion_desc",
               "energy_type": "qi_current",
               "energy_cost": 180,
               "damage": 1550,
               "heal": 0,
-              "effect_key": "skill_dragon_fist_explosion_effect"
-            },
-            {
-              "id": "super_spirit_bomb",
-              "name": "超級元氣彈·寰宇終結",
-              "name_key": "skill_super_spirit_bomb_name",
-              "desc": "消耗 200 點氣力，匯聚全宇宙生靈信念的大元氣彈，造成 1700 點極限真傷並自癒 450 點 HP！",
-              "desc_key": "skill_super_spirit_bomb_desc",
-              "energy_type": "qi_current",
-              "energy_cost": 200,
-              "damage": 1700,
-              "heal": 450,
-              "effect_key": "skill_super_spirit_bomb_effect"
+              "desc": "消耗 180 點氣力，金色巨龍貫穿天地！造成 1550 點宇宙級毀滅打擊！"
             }
           ]
         }

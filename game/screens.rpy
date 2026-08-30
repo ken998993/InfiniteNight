@@ -1,4 +1,4 @@
-﻿################################################################################
+################################################################################
 ## 初始化
 ################################################################################
 
@@ -92,7 +92,47 @@ style frame:
 ##
 ## https://www.renpy.org/doc/html/screen_special.html#say
 
+init python:
+    default_character_avatars = {
+        "冷月": "images/coldmoon.PNG",
+        "趙虎": "images/gansterA.PNG",
+        "周揚": "images/panicWokrer.PNG",
+        "錢富貴": "images/fatoldman.PNG",
+        "顧臨淵": "images/core_idle.PNG",
+        "項天": "images/xiangtian.PNG",
+        "蘇曉": "images/femalewriter.PNG",
+        "言朔": "images/core_idle.PNG",
+        "極光重工安保隊長": "images/securegurde.jpg",
+        "安保隊長": "images/securegurde.jpg",
+        "安保人員": "images/securegurde.jpg",
+        "敏捷型喪屍": "images/agile_zombie.jpg",
+        "敏捷異變體": "images/agile_zombie.jpg",
+        "變異腐屍": "images/zombie.jpg",
+        "腐屍": "images/zombie.jpg",
+        "A.D.A.M. 核心主機": "images/adamcore.jpg",
+        "A.D.A.M.": "images/adamcore.jpg",
+        "亞當": "images/adamcore.jpg",
+        "adamcore": "images/adamcore.jpg",
+    }
+
 screen say(who, what):
+
+    python:
+        cur_side_img = None
+        if who:
+            # 優先檢查是否為指定隊員或已知角色
+            matched_avatar = None
+            for _k, _av in default_character_avatars.items():
+                if _k in who:
+                    matched_avatar = _av
+                    break
+            if matched_avatar:
+                cur_side_img = matched_avatar
+            else:
+                cur_side_img = None
+        else:
+            # 純背景描述與旁白敘述時不放人物圖片
+            cur_side_img = None
 
     window:
         id "window"
@@ -117,9 +157,9 @@ screen say(who, what):
 
         text what id "what"
 
-    ## 如果有側面影像，請將其顯示在文字上方。不要顯示在手機版本上 - 沒有空間。
-    if not renpy.variant("small"):
-        add SideImage() xalign 0.0 yalign 1.0
+    ## 如果有側面影像，請將其顯示在文字上方。保留左側與底部邊距，避免緊貼邊緣
+    if not renpy.variant("small") and cur_side_img:
+        add cur_side_img xpos 75 yalign 1.0 yoffset -20 xsize 240 ysize 240 fit "contain"
 
 
 ## 使名稱框可用於透過角色物件進行樣式設定。

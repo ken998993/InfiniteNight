@@ -1,585 +1,436 @@
-# ==========================================
-# 主神空間：自由探索與中央光球系統（共用 team_roster 整合版）
+﻿# ==========================================
+# 輪迴空間：中央廣場自由探索與導航樞紐 (main_room.rpy)
 # ==========================================
 
-# 定義一個自動將 1280x720 背景放大並置中填滿 1920x1080 的縮放特效
+init python:
+    STAGE_PROGRESSION = [
+        {"id": 1, "name": "第一世界 · 喪屍末日 (極光重工)", "label": "stage_1_1_zombie_city"},
+        {"id": 2, "name": "第二世界 · 太空真空 (幽靈母艦)", "label": "stage_1_2_alien_ship"},
+        {"id": 3, "name": "第三世界 · 日式靈異 (咒怨凶宅)", "label": "stage_1_3_the_grudge"},
+        {"id": 4, "name": "第四世界 · 修真神魔 (蜀山血海)", "label": "stage_1_4_cultivation_realm"},
+        {"id": 5, "name": "第五世界 · 木乃伊遺跡 (印洲隊團戰)", "label": "stage_1_5_team_battle_india"}
+    ]
+
+    def get_next_stage_info():
+        cur_idx = current_main_stage_index if 'current_main_stage_index' in globals() else 1
+        if 1 <= cur_idx <= len(STAGE_PROGRESSION):
+            return STAGE_PROGRESSION[cur_idx - 1]
+        return None
+
 transform bg_scale_1080p:
-    zoom 1.6
+    xsize 1920
+    ysize 1080
     xalign 0.5 yalign 0.5
 
-# 初始化一個半透明黑色遮罩物件
 image blackout_overlay = "#00000066"
 
 
 # ==========================================
-# 主神空間主標籤
+# 輪迴空間主探索標籤
 # ==========================================
 label main_room_exploration:
-    # 1. 載入背景並套用放大特效
     scene bg_main_room_topdown at bg_scale_1080p
 
-    # 2. 疊加一層半透明黑色遮罩讓背景變暗
     show blackout_overlay:
         xysize (1920, 1080)
     
-    # 確保團隊與主角資料已初始化
     if 'team_roster' not in globals() or not team_roster:
         $ team_roster = get_team_roster()
     $ team_roster[0]["points"] = points
 
-    # 呼叫主神空間的互動畫面
     call screen topdown_main_room
 
-    # 接收畫面回傳的動作
     $ action_result = _return
 
-    if action_result == "talk_zhang":
-        jump zhang_jie_dialogue
-    elif action_result == "exchange_core":
-        jump main_exchange_shop    # 前往中央光球兌換介面
-    elif action_result == "my_room":
-        jump personal_room          # 進入主角房間
+    if action_result == "exchange_core":
+        jump main_exchange_hub      # 中央光球總兌換中心
+    elif action_result == "open_bloodline":
+        jump bloodline_exchange_shop # 血統強化石碑
+    elif action_result == "open_stat_alloc":
+        jump stat_allocation_hub    # 六圍屬性加點石碑
+    elif action_result == "open_training_dummy":
+        jump training_dummy_hub     # 全息模擬稻草人
+    elif action_result == "open_inventory":
+        jump inventory_menu         # 個人戰術背包
+    elif action_result == "open_workshop":
+        jump fate_shard_workshop_hub # 命運碎片工坊
+    elif action_result == "full_heal":
+        jump full_heal_action       # 輪迴全身修復
+    elif action_result == "open_item_shop":
+        jump item_shop_hub          # 軍火與物資商城
     elif action_result == "open_team_menu":
-        jump view_team_status       # 開啟團隊狀態面板
+        jump view_team_status       # 團隊狀態面板
+    elif action_result == "open_deployment":
+        jump party_deployment_hub   # 戰前 6 人陣型與出戰配置
     elif action_result == "admin_command":
-        jump admin_command_entry    # 開啟特權指令終端
+        jump admin_command_entry    # 管理員特權指令
+    elif action_result == "open_home_base":
+        jump home_base_hub          # 專屬神域家園
+    elif action_result == "my_room":
+        jump personal_room          # 主角私人房間
+    elif action_result == "talk_lengyue":
+        jump lengyue_dialogue       # 與冷月對話
     elif action_result == "next_dungeon":
-        jump select_next_dungeon    # 前往下一場副本
+        jump campaign_select_entry  # 進入五大副本世界大門
+    elif action_result == "enter_next_world_story":
+        $ next_stg = get_next_stage_info()
+        if next_stg:
+            $ n_label = next_stg.get("label")
+            $ n_name = next_stg.get("name")
+            menu:
+                "【 🚀 立即啟程傳送：[n_name] (主線推進，通關後無法重複遊玩) 】":
+                    $ renpy.jump(n_label)
+                "【 稍作整裝與修煉 (返回廣場) 】":
+                    jump main_room_exploration
+        jump main_room_exploration
+    elif action_result == "all_stages_cleared_msg":
+        z "【全主線已通關】恭喜！中洲隊已完美通關全部 5 大主線輪迴世界！所有主線劇情已封存，您可以自由使用傳送門探索大地圖或在神域家園中修煉成長！"
+        jump main_room_exploration
         
     return
 
 
 # ==========================================
-# 主神空間介面設計
+# 輪迴空間互動畫面介面 (topdown_main_room)
 # ==========================================
 screen topdown_main_room():
 
-    # 讓整個互動畫面撐滿 1920x1080 全螢幕
     add "#00000000" xysize (1920, 1080)
 
-    # 1. 中央光球 (文字按鈕，點擊即可進行兌換)
-    textbutton "【 💡 中央主神光球 (點擊兌換血統與技能) 】":
-        xpos 710 ypos 380
-        action Return("exchange_core")
-        text_size 28
-        text_idle_color "#00ffff"
-        text_hover_color "#ffffff"
+    # 0. 專屬神域家園按鈕
+    textbutton "【 🏰 專屬神域家園 (工坊/修煉/羈絆) 】":
+        xpos 700 ypos 280
+        action Return("open_home_base")
+        text_size 26 text_idle_color "#ffd700" text_hover_color "#ffffff"
 
-    # 2. 四周區域按鈕
+    # 1. 中央輪迴光球 (強化與兌換)
+    textbutton "【 💡 中央輪迴光球 (血統強化 / 屬性加點 / 道具商城) 】":
+        xpos 550 ypos 350
+        action Return("exchange_core")
+        text_size 28 text_idle_color "#00ffff" text_hover_color "#ffffff"
+
+    # 2. 六圍加點與全息模擬稻草人
+    textbutton "【 🧬 六圍屬性加點 (10點=1屬性) 】":
+        xpos 520 ypos 420
+        action Return("open_stat_alloc")
+        text_size 22 text_idle_color "#00ffcc" text_hover_color "#ffffff"
+
+    textbutton "【 🎯 全息模擬稻草人 (DPS測試) 】":
+        xpos 1020 ypos 420
+        action Return("open_training_dummy")
+        text_size 22 text_idle_color "#ffcc00" text_hover_color "#ffffff"
+
+    # 3. 戰術背包與碎片工坊
+    textbutton "【 🎒 個人戰術背包 (8大部位裝備) 】":
+        xpos 560 ypos 480
+        action Return("open_inventory")
+        text_size 21 text_idle_color "#66ff66" text_hover_color "#ffffff"
+
+    textbutton "【 🔮 命運碎片工坊 (合成 / 拆解) 】":
+        xpos 1040 ypos 480
+        action Return("open_workshop")
+        text_size 21 text_idle_color "#ddaaff" text_hover_color "#ffffff"
+
+    # 4. 全身修復
+    textbutton "【 💖 輪迴全身修復 (消耗 100 點) 】":
+        xpos 750 ypos 540
+        action Return("full_heal")
+        text_size 20 text_idle_color "#ff88aa" text_hover_color "#ffffff"
+
+    # 4.5. 進入下一個世界主線按鈕 (線性推進，不可重複回溯)
+    $ next_stg = get_next_stage_info()
+    if next_stg:
+        $ n_stg_name = next_stg.get("name")
+        textbutton f"【 🌌 進入下一個世界：{n_stg_name} 】":
+            xalign 0.5 ypos 610
+            action Return("enter_next_world_story")
+            text_size 23 text_idle_color "#00ffea" text_hover_color "#ffffff"
+    else:
+        textbutton "【 🏆 全主線輪迴世界已通關 (中洲隊登頂) 】":
+            xalign 0.5 ypos 610
+            action Return("all_stages_cleared_msg")
+            text_size 22 text_idle_color "#888888" text_hover_color "#aaaaaa"
+
+    # 5. 四周區域按鈕
     textbutton "【 你的房間 】":
         xpos 250 ypos 200
         action Return("my_room")
-        text_size 24
-        text_idle_color "#ffffff"
-        text_hover_color "#00ffff"
+        text_size 24 text_idle_color "#ffffff" text_hover_color "#00ffff"
 
-    textbutton "【 張傑的位置 】":
+    textbutton "【 冷月的位置 】":
         xpos 1400 ypos 250
-        action Return("talk_zhang")
-        text_size 24
-        text_idle_color "#ffffff"
-        text_hover_color "#00ffff"
+        action Return("talk_lengyue")
+        text_size 24 text_idle_color "#ffffff" text_hover_color "#00ffff"
 
-    textbutton "【 團隊狀態與基因鎖 】":
-        xpos 1080 ypos 920
+    textbutton "【 👥 團隊名冊與基因鎖 】":
+        xpos 1180 ypos 920
         action Return("open_team_menu")
-        text_size 26
-        text_idle_color "#00ffcc"
-        text_hover_color "#ffffff"
+        text_size 24 text_idle_color "#00ffcc" text_hover_color "#ffffff"
 
-    textbutton "【 傳送大門 (下一關) 】":
-        xpos 680 ypos 920
+    textbutton "【 ⚔️ 戰前 6 人陣型配置 】":
+        xpos 760 ypos 920
+        action Return("open_deployment")
+        text_size 24 text_idle_color "#ffaa00" text_hover_color "#ffffff"
+
+    textbutton "【 🚪 傳送大門 (五大副本) 】":
+        xpos 380 ypos 920
         action Return("next_dungeon")
-        text_size 26
-        text_idle_color "#ff6666"
-        text_hover_color "#ff9999"
+        text_size 24 text_idle_color "#ff6666" text_hover_color "#ff9999"
 
-    # 3. 左上角積分狀態欄
+    # 5. 左上角積分與碎片狀態欄
+    $ shards = get_fate_shards() if 'get_fate_shards' in globals() else {}
+    $ next_stg = get_next_stage_info()
+    $ stg_progress_txt = next_stg.get('name') if next_stg else '👑 全主線已通關'
+    $ save_name = f"顧臨淵 | 主線進度：{stg_progress_txt}"
     frame:
         xpos 40 ypos 40
         padding (20, 15)
         background "#000000cc"
         vbox:
-            spacing 6
-            text "【 主神空間廣場 】" size 20 color "#ffcc00"
-            text "生存點數：[points] 點" size 18 color "#ffffff"
+            spacing 5
+            text "【 輪迴空間廣場 】" size 20 color "#ffcc00"
+            text f"主線進度: {stg_progress_txt}" size 14 color "#00ffea" bold True
+            text f"生存點數: {points} 點" size 17 color "#ffffff"
+            text f"命運碎片: D({shards.get('D',0)}) C({shards.get('C',0)}) B({shards.get('B',0)}) A({shards.get('A',0)}) S({shards.get('S',0)})" size 14 color "#ddaaff"
             $ cur_b = team_roster[0].get('bloodline', '無') if ('team_roster' in globals() and team_roster) else '無'
-            text "當前血統：[cur_b]" size 15 color "#00ffff"
+            text f"當前血統: {cur_b}" size 13 color "#00ffff"
 
-    # 4. 右上角管理員特權指令按鈕
+    # 6. 右上角管理員特權指令按鈕
     textbutton "【 🔑 特權密令 (addpoints) 】":
         xpos 1460 ypos 40
         action Return("admin_command")
-        text_size 22
-        text_idle_color "#ffcc00"
-        text_hover_color "#ffffff"
+        text_size 22 text_idle_color "#ffcc00" text_hover_color "#ffffff"
 
 
 # ==========================================
-# 點擊光球後彈出的血統與專屬技能兌換強化系統
+# 輪迴全身修復邏輯 (消耗 100 點數)
 # ==========================================
-screen item_exchange_screen():
-
-    default current_tab = "vampire_bloodline"
-    default current_grade = "C"
-
-    # 取得血統資料庫與玩家資料
-    $ catalog = get_bloodlines_data()
-    $ player_member = team_roster[0] if ('team_roster' in globals() and team_roster) else get_team_roster()[0]
-    $ player_bloodline = player_member.get('bloodline', '無')
-    $ player_hp = player_member.get('hp', 100)
-    $ player_max_hp = player_member.get('max_hp', 100)
-
-    window:
-        background "#000000dd"
-        xysize (1920, 1080)
-
-    frame:
-        xalign 0.5 yalign 0.5
-        xysize (1720, 960)
-        padding (30, 25)
-        background "#0d111edd"
-
-        vbox:
-            spacing 12
-            xalign 0.5
-
-            # 頂部狀態資訊列
-            hbox:
-                spacing 30
-                xalign 0.5
-                text "【 主神石碑 · 血統強化與專屬技能兌換系統 】" size 25 color "#ffcc00" bold True yalign 0.5
-                text "個人生存點數：[points] 點" size 22 color "#00ffcc" bold True yalign 0.5
-                text "當前血統：[player_bloodline]" size 17 color "#ffaa88" yalign 0.5
-                text "HP：[player_hp]/[player_max_hp]" size 17 color "#ff6666" yalign 0.5
-                
-                textbutton "【 🔑 特權密令 】":
-                    action Return("admin_command")
-                    text_size 18
-                    text_idle_color "#ffcc00"
-                    text_hover_color "#ffffff"
-                    yalign 0.5
-
-            null height 2
-
-            # 主體雙欄佈局：左側為血統/道具分類列表，右側為詳細屬性、招式預覽與兌換操作
-            hbox:
-                spacing 25
-                xalign 0.5
-
-                # --------------------------------
-                # 左側：血統體系選擇列表
-                # --------------------------------
-                frame:
-                    xysize (480, 780)
-                    background "#161b2ebb"
-                    padding (20, 15)
-
-                    vbox:
-                        spacing 10
-                        text "【 選擇強化體系 / 血統列表 】" size 19 color "#ffcc00"
-                        null height 5
-
-                        viewport:
-                            xysize (440, 700)
-                            scrollbars "vertical"
-                            mousewheel True
-                            draggable True
-
-                            vbox:
-                                spacing 10
-                                for b in catalog:
-                                    $ b_id = b.get('id', '')
-                                    $ b_name = b.get('name', '未知血統')
-                                    $ b_energy = b.get('energy_name', '特殊能量')
-                                    $ is_selected = (current_tab == b_id)
-                                    
-                                    button:
-                                        xysize (420, 90)
-                                        if is_selected:
-                                            background "#3b5288ee"
-                                        else:
-                                            background "#222a42aa"
-                                        hover_background "#4a68aaaa"
-                                        padding (12, 10)
-                                        action [SetScreenVariable("current_tab", b_id), SetScreenVariable("current_grade", "C")]
-
-                                        vbox:
-                                            spacing 3
-                                            text "★ [b_name]" size 17 color ("#00ffff" if is_selected else "#ffffff") bold True
-                                            text "核心體系：[b_energy] 專精" size 13 color "#aaaaaa"
-                                            $ cur_g_info = b.get("grades", {}).get("C", {})
-                                            $ min_pts = cur_g_info.get("points", 2500)
-                                            text "階級支援：C / B / A / S 階 (最低 [min_pts] 點起)" size 12 color "#ffcc00"
-
-                                null height 10
-                                # 戰術物資分類
-                                $ is_item_tab = (current_tab == "tactical_items")
-                                button:
-                                    xysize (420, 80)
-                                    if is_item_tab:
-                                        background "#553366ee"
-                                    else:
-                                        background "#332244aa"
-                                    hover_background "#664477aa"
-                                    padding (12, 10)
-                                    action SetScreenVariable("current_tab", "tactical_items")
-
-                                    vbox:
-                                        spacing 3
-                                        text "📦 戰術物資與應急補給品" size 17 color ("#ff88ff" if is_item_tab else "#ddaaff") bold True
-                                        text "急救噴霧、彈藥包、高爆破片手榴彈" size 13 color "#aaaaaa"
-
-                # --------------------------------
-                # 右側：血統階級詳情、技能解鎖預覽與兌換按鈕
-                # --------------------------------
-                frame:
-                    xysize (1150, 780)
-                    background "#161b2ebb"
-                    padding (25, 20)
-
-                    if current_tab == "tactical_items":
-                        # 戰術物資面板
-                        vbox:
-                            spacing 20
-                            text "【 戰術物資 · 應急軍火與生化藥劑兌換 】" size 22 color "#ff88ff" bold True
-                            text "主神空間常備作戰物資，可用於戰鬥中應急補給與範圍轟炸。" size 15 color "#cccccc"
-                            null height 10
-
-                            hbox:
-                                spacing 20
-                                # 彈藥
-                                frame:
-                                    xysize (340, 240)
-                                    background "#222a42dd"
-                                    padding (15, 15)
-                                    vbox:
-                                        spacing 10
-                                        text "🔫 標準槍械彈藥箱" size 18 color "#00ffff" bold True
-                                        text "補充常規 9mm / 5.56mm 彈藥。" size 14 color "#aaaaaa"
-                                        text "消耗：100 生存點數" size 15 color "#ffcc00"
-                                        null height 20
-                                        textbutton "【 立即兌換 (100點) 】":
-                                            action Return("buy_ammo")
-                                            text_size 15 text_idle_color "#00ff00" text_hover_color "#ffffff"
-
-                                # 急救噴霧
-                                frame:
-                                    xysize (340, 240)
-                                    background "#222a42dd"
-                                    padding (15, 15)
-                                    vbox:
-                                        spacing 10
-                                        text "💊 主神止血急救噴霧" size 18 color "#66ff66" bold True
-                                        text "迅速止血，戰鬥中立即恢復 60 HP。" size 14 color "#aaaaaa"
-                                        text "消耗：150 生存點數" size 15 color "#ffcc00"
-                                        null height 20
-                                        textbutton "【 立即兌換 (150點) 】":
-                                            action Return("buy_spray")
-                                            text_size 15 text_idle_color "#00ff00" text_hover_color "#ffffff"
-
-                                # 手榴彈
-                                frame:
-                                    xysize (340, 240)
-                                    background "#222a42dd"
-                                    padding (15, 15)
-                                    vbox:
-                                        spacing 10
-                                        text "💣 高爆破片手榴彈" size 18 color "#ff6666" bold True
-                                        text "投擲造成 85 點全體範圍爆炸傷害。" size 14 color "#aaaaaa"
-                                        text "消耗：200 生存點數" size 15 color "#ffcc00"
-                                        null height 20
-                                        textbutton "【 立即兌換 (200點) 】":
-                                            action Return("buy_grenade")
-                                            text_size 15 text_idle_color "#00ff00" text_hover_color "#ffffff"
-
-                    else:
-                        # 血統詳情面板
-                        $ selected_bloodline = get_bloodline_by_id(current_tab)
-                        if selected_bloodline:
-                            $ grades_dict = selected_bloodline.get("grades", {})
-                            $ cur_grade_data = grades_dict.get(current_grade, {})
-                            $ cost_points = cur_grade_data.get("points", 0)
-                            $ fate_shard = cur_grade_data.get("fate_shard", cur_grade_data.get("side_story", "C"))
-                            $ grade_name = cur_grade_data.get("name", "未命名階級")
-                            $ grade_skills = cur_grade_data.get("skills", [])
-                            $ grade_attrs = cur_grade_data.get("attributes", {})
-                            $ can_afford = (points >= cost_points)
-
-                            vbox:
-                                spacing 12
-                                
-                                # 血統標題與描述
-                                vbox:
-                                    spacing 4
-                                    text "[selected_bloodline.get('name', '')]" size 23 color "#00ffff" bold True
-                                    text "[selected_bloodline.get('desc', '')]" size 14 color "#bbbbbb"
-
-                                null height 2
-
-                                # 階級切換標籤列 (C / B / A / S 階)
-                                hbox:
-                                    spacing 15
-                                    text "選擇血統階級：" size 16 color "#ffcc00" yalign 0.5
-                                    for g_key in ["C", "B", "A", "S"]:
-                                        if g_key in grades_dict:
-                                            $ is_g_active = (current_grade == g_key)
-                                            $ g_cost = grades_dict[g_key].get("points", 0)
-                                            button:
-                                                xysize (180, 42)
-                                                if is_g_active:
-                                                    background "#e6a100"
-                                                else:
-                                                    background "#2b354f"
-                                                hover_background "#53648f"
-                                                action SetScreenVariable("current_grade", g_key)
-                                                text f"★ {g_key} 階 ({g_cost}點)" size 15 color ("#000000" if is_g_active else "#ffffff") bold True xalign 0.5 yalign 0.5
-
-                                null height 2
-
-                                # 當前選定階級屬性與技能展示框 (支援平滑滾動)
-                                frame:
-                                    xysize (1100, 470)
-                                    background "#0f1424aa"
-                                    padding (18, 15)
-
-                                    viewport:
-                                        xysize (1064, 440)
-                                        scrollbars "vertical"
-                                        mousewheel True
-                                        draggable True
-
-                                        vbox:
-                                            spacing 12
-
-                                            # 第一區塊：兌換條件與屬性加成
-                                            hbox:
-                                                spacing 30
-                                                vbox:
-                                                    spacing 4
-                                                    xysize (360, None)
-                                                    text "【 階級名稱 】[grade_name]" size 16 color "#ffcc00" bold True
-                                                    text f"【 需求點數 】{cost_points} 生存點數" size 15 color ("#66ff66" if can_afford else "#ff4444") bold True
-                                                    text f"【 命運碎片 】{fate_shard} 階命運碎片 x 1" size 14 color "#ffffff"
-
-                                                vbox:
-                                                    spacing 4
-                                                    xysize (650, None)
-                                                    text "【 屬性與能量池增益 】" size 16 color "#00ffcc" bold True
-                                                    hbox:
-                                                        spacing 20
-                                                        $ hp_gain = grade_attrs.get('hp', grade_attrs.get('max_hp', 0))
-                                                        if hp_gain > 0:
-                                                            text "生命值上限 +[hp_gain]" size 14 color "#ff6666"
-                                                        if grade_attrs.get('blood_max', 0) > 0:
-                                                            $ b_max = grade_attrs['blood_max']
-                                                            text "血族能量上限 +[b_max]" size 14 color "#ff4444"
-                                                        if grade_attrs.get('neili_max', 0) > 0:
-                                                            $ n_max = grade_attrs['neili_max']
-                                                            text "混元內力上限 +[n_max]" size 14 color "#ffaa00"
-                                                        if grade_attrs.get('qi_max', 0) > 0:
-                                                            $ q_max = grade_attrs['qi_max']
-                                                            text "氣血之力上限 +[q_max]" size 14 color "#ff6666"
-                                                        if grade_attrs.get('mental_max', 0) > 0:
-                                                            $ m_max = grade_attrs['mental_max']
-                                                            text "精神力場上限 +[m_max]" size 14 color "#00ccff"
-                                                        if grade_attrs.get('regeneration', 0) > 0:
-                                                            $ reg = grade_attrs['regeneration']
-                                                            text "自癒恢復速度 +[reg]" size 14 color "#66ff66"
-
-                                            # 分隔線
-                                            null height 2
-                                            add "#334466" xysize (1050, 1)
-                                            null height 2
-
-                                            # 第二區塊：專屬戰鬥技能列表
-                                            vbox:
-                                                spacing 8
-                                                text f"【 該階級可習得/升級之專屬技能 (共 {len(grade_skills)} 招) 】" size 17 color "#ffaa00" bold True
-
-                                                for sk in grade_skills:
-                                                    $ sk_name = sk.get('name', '未知招式')
-                                                    $ sk_cost = sk.get('energy_cost', sk.get('cost_energy', 0))
-                                                    $ sk_type = sk.get('energy_type', 'mp')
-                                                    $ sk_dmg = sk.get('damage', 0)
-                                                    $ sk_heal = sk.get('heal', 0)
-                                                    $ sk_desc = sk.get('desc', '')
-
-                                                    frame:
-                                                        xysize (1040, None)
-                                                        background "#1c2338aa"
-                                                        padding (12, 10)
-
-                                                        vbox:
-                                                            spacing 4
-                                                            hbox:
-                                                                spacing 15
-                                                                text "🔥 [sk_name]" size 16 color "#00ffff" bold True
-                                                                text f"消耗: {sk_cost} 點 ({sk_type})" size 14 color "#ffcc00"
-                                                                if sk_dmg > 0:
-                                                                    text f"威力: {sk_dmg} 傷害" size 14 color "#ff6666" bold True
-                                                                if sk_heal > 0:
-                                                                    text f"自癒: +{sk_heal} HP" size 14 color "#66ff66" bold True
-
-                                                            text "招式效果：[sk_desc]" size 13 color "#cccccc"
-
-                                null height 4
-
-                                # 底部兌換操作按鈕
-                                hbox:
-                                    spacing 20
-                                    xalign 0.5
-                                    if can_afford:
-                                        textbutton f"【 ⚡ 立即扣除 {cost_points} 點數兌換【{grade_name}】 】":
-                                            action Return(("buy_bloodline", current_tab, current_grade))
-                                            text_size 19
-                                            text_idle_color "#00ff00"
-                                            text_hover_color "#ffffff"
-                                    else:
-                                        $ pts_needed = cost_points - points
-                                        textbutton f"【 ❌ 生存點數不足 (尚缺 {pts_needed} 點) 】":
-                                            action NullAction()
-                                            text_size 18
-                                            text_idle_color "#884444"
-
-            null height 5
-
-            # 離開光球返回廣場按鈕
-            textbutton "【 🚪 關閉兌換清單，返回主神廣場 】":
-                xalign 0.5
-                action Return("leave")
-                text_size 20
-                text_idle_color "#ff6666"
-                text_hover_color "#ff9999"
-
-
-# ==========================================
-# 主神空間管理員特權指令終端畫面
-# ==========================================
-screen admin_command_screen():
-
-    default custom_cmd = "addpoints"
-
-    modal True
-    window:
-        background "#000000bb"
-        xysize (1920, 1080)
-
-    frame:
-        xalign 0.5 yalign 0.5
-        xysize (880, 620)
-        padding (35, 30)
-        background "#101626f5"
-
-        vbox:
-            spacing 15
-            xalign 0.5
-
-            text "【 🔑 主神空間 · 管理員特權指令終端 】" size 25 color "#ffcc00" bold True xalign 0.5
-            text "請在下方輸入指令密碼（支援 addpoints、fullheal、genelock、godmode 等）：" size 15 color "#aaaaaa" xalign 0.5
-
-            null height 5
-
-            # 指令輸入區
-            frame:
-                xysize (810, 65)
-                background "#1a2238ee"
-                padding (15, 12)
-                hbox:
-                    spacing 10
-                    yalign 0.5
-                    text "COMMAND > " size 18 color "#00ffff" bold True yalign 0.5
-                    input value ScreenVariableInputValue("custom_cmd") length 40 color "#ffffaa" size 18
-
-            null height 5
-
-            # 快捷指令按鈕
-            text "【 快捷特權密令 (點擊直接生效) 】" size 16 color "#ffaa00" bold True
-            grid 2 2:
-                spacing 12
-                xalign 0.5
-                
-                button:
-                    xysize (395, 62)
-                    background "#1f2a44"
-                    hover_background "#2f4066"
-                    padding (12, 8)
-                    action Return("addpoints")
-                    vbox:
-                        text "⚡ 注入 +100,000 生存點數" size 15 color "#66ff66" bold True
-                        text "指令碼：addpoints" size 12 color "#888888"
-
-                button:
-                    xysize (395, 62)
-                    background "#1f2a44"
-                    hover_background "#2f4066"
-                    padding (12, 8)
-                    action Return("fullheal")
-                    vbox:
-                        text "💊 全員生命與能量全滿" size 15 color "#66ccff" bold True
-                        text "指令碼：fullheal" size 12 color "#888888"
-
-                button:
-                    xysize (395, 62)
-                    background "#1f2a44"
-                    hover_background "#2f4066"
-                    padding (12, 8)
-                    action Return("genelock")
-                    vbox:
-                        text "🧬 直接解鎖【五階基因鎖】" size 15 color "#ffaa00" bold True
-                        text "指令碼：genelock" size 12 color "#888888"
-
-                button:
-                    xysize (395, 62)
-                    background "#1f2a44"
-                    hover_background "#2f4066"
-                    padding (12, 8)
-                    action Return("godmode")
-                    vbox:
-                        text "👑 至尊 GM 無敵模式 (+999k點/滿血)" size 15 color "#ff4444" bold True
-                        text "指令碼：godmode" size 12 color "#888888"
-
-            null height 10
-
-            # 底部執行與關閉按鈕
-            hbox:
-                spacing 35
-                xalign 0.5
-                textbutton "【 ✅ 執行輸入指令 】":
-                    action Return(custom_cmd)
-                    text_size 19
-                    text_idle_color "#00ff00"
-                    text_hover_color "#ffffff"
-
-                textbutton "【 ❌ 取消關閉 】":
-                    action Return(None)
-                    text_size 19
-                    text_idle_color "#ff4444"
-                    text_hover_color "#ff8888"
-
-
-# ==========================================
-# 各房間與劇情互動邏輯分支
-# ==========================================
-label zhang_jie_dialogue:
-    "你走到張傑身旁。他正叼著菸，靠在柱子上喝酒。"
-    "張傑瞥了你一眼，笑道：「怎麼？覺得主神空間殘酷？在這裡，只要有積分，你連神都能兌換出來。活下去，才有未來。」"
+label full_heal_action:
+    if points >= 100:
+        $ points -= 100
+        if 'team_roster' in globals() and team_roster:
+            $ team_roster[0]["points"] = points
+            python:
+                for m in team_roster:
+                    m["hp"] = m.get("max_hp", 100)
+                    m["mp"] = m.get("max_mp", 50)
+                    m["status"] = "良好"
+                    for k in ["blood", "neili", "qi", "mental", "calc"]:
+                        max_k = f"{k}_max"
+                        cur_k = f"{k}_current"
+                        if max_k in m and m[max_k] > 0:
+                            m[cur_k] = m[max_k]
+                hp = team_roster[0]["hp"]
+        python:
+            if renpy.loadable("audio/levelup.ogg"):
+                renpy.sound.play("audio/levelup.ogg")
+        z "【輪迴聖光洗禮】一陣溫暖純淨的乳白色神聖光柱從大廳穹頂傾瀉而下，籠罩了全體隊員！\n全員所有殘疾、重傷與 Debuff 狀態已徹底淨化，生命值與全部能量池已全部補滿！（消耗 100 生存點數）"
+    else:
+        z "光球傳來冰冷機械音：「您的生存點數不足 100 點，無法啟動全身修復程序。」"
     jump main_room_exploration
 
-label personal_room:
-    "你推開了屬於你的私人房間大門，在絕對安全的房間內稍微休息、調整裝備，精神恢復了不少。"
-    jump main_room_exploration
 
-label view_team_status:
-    # 即時將目前主角的點數同步更新到團隊列表第一位
-    if 'team_roster' not in globals() or not team_roster:
-        $ team_roster = get_team_roster()
-    $ team_roster[0]["points"] = points
+# ==========================================
+# 命運碎片工坊分支 (fate_shard_workshop_hub)
+# ==========================================
+label fate_shard_workshop_hub:
+    call screen fate_shard_workshop_screen
+    $ ws_res = _return
     
-    call screen team_status_screen(page=0)
+    if isinstance(ws_res, tuple) and len(ws_res) >= 2:
+        $ op = ws_res[0]
+        $ tier = ws_res[1]
+        if op == "synth":
+            $ res = synthesize_fate_shard(tier)
+            z "[res['msg']]"
+            jump fate_shard_workshop_hub
+        elif op == "dismantle":
+            $ res = dismantle_fate_shard(tier)
+            z "[res['msg']]"
+            jump fate_shard_workshop_hub
+            
+    elif ws_res == "close_workshop":
+        jump main_room_exploration
+        
     jump main_room_exploration
 
-# 主神特權指令執行分支
+
+# ==========================================
+# 輪迴中央光球兌換總樞紐
+# ==========================================
+label main_exchange_hub:
+    menu:
+        "【 🧬 強化基因血統與專屬戰技 (3槽位/同路線升級補差價) 】":
+            jump bloodline_exchange_shop
+
+        "【 ⚔️ 戰前 6 人陣型與前後排配置 (Party Deployment) 】":
+            jump party_deployment_hub
+
+        "【 📊 核心六圍屬性加點 (10點數 = +1 指定屬性) 】":
+            jump stat_allocation_hub
+
+        "【 🎯 虛空廣場 · 全息模擬稻草人 (DPS與配裝木樁測試) 】":
+            jump training_dummy_hub
+
+        "【 🛒 進入軍火裝備商城 (8大暗黑部位/科技與魔法) 】":
+            jump item_shop_hub
+
+        "【 🔮 開啟命運碎片工坊 (4階碎片合成與拆解) 】":
+            jump fate_shard_workshop_hub
+
+        "【 🎒 開啟個人戰術背包 (檢視/穿戴裝備) 】":
+            jump inventory_menu
+
+        "【 返回輪迴廣場 】":
+            jump main_room_exploration
+
+
+# ==========================================
+# 戰前 6 人陣型與出戰配置分支 (party_deployment_hub)
+# ==========================================
+label party_deployment_hub:
+    call screen party_deployment_screen
+    $ dep_res = _return
+    if dep_res == "start_battle_with_deployment":
+        z "⚔️【陣容配置已儲存】當前 6 人出戰名單與前後排站位已更新！進入戰鬥時將自動採用此陣型！"
+        jump main_room_exploration
+    elif dep_res == "cancel_deployment":
+        jump main_room_exploration
+    jump main_room_exploration
+
+
+# ==========================================
+# 屬性加點石碑分支 (stat_allocation_hub)
+# ==========================================
+label stat_allocation_hub:
+    call screen stat_allocation_screen
+    $ st_res = _return
+    if isinstance(st_res, tuple) and len(st_res) >= 4 and st_res[0] == "allocate_stat":
+        $ m_idx = st_res[1]
+        $ s_code = st_res[2]
+        $ cnt = st_res[3]
+        $ res = allocate_stat_points(m_idx, s_code, cnt)
+        z "[res['msg']]"
+        jump stat_allocation_hub
+    elif st_res == "leave_stat_screen":
+        jump main_room_exploration
+    jump main_room_exploration
+
+
+# ==========================================
+# 全息模擬稻草人分支 (training_dummy_hub)
+# ==========================================
+label training_dummy_hub:
+    call screen training_dummy_screen
+    $ td_res = _return
+    if td_res == "launch_simulation":
+        $ b_state = start_simulation_battle()
+        call screen battle_screen(b_state)
+        $ end_simulation_battle()
+        z "🎯【全息模擬戰鬥結束】全息虛擬系統已關閉！\n戰前所有隊員血量、精神力與戰術背包物資已 100%% 無損還原！"
+        jump training_dummy_hub
+    elif td_res == "leave_simulator":
+        jump main_room_exploration
+    jump main_room_exploration
+
+
+# ==========================================
+# 血統強化石碑分支
+# ==========================================
+label bloodline_exchange_shop:
+    call screen bloodline_exchange_screen
+    $ b_choice = _return
+    
+    if b_choice == "admin_command":
+        call screen admin_command_screen
+        $ cmd_res = _return
+        if cmd_res:
+            $ msg = process_admin_command(cmd_res)
+            z "[msg]"
+        jump bloodline_exchange_shop
+        
+    elif isinstance(b_choice, tuple) and len(b_choice) >= 3 and b_choice[0] == "buy_bloodline":
+        $ b_id = b_choice[1]
+        $ g_key = b_choice[2]
+        $ res = purchase_bloodline(b_id, g_key)
+        $ res_msg = res.get("msg", "")
+        if res.get("success", False):
+            python:
+                if renpy.loadable("audio/levelup.ogg"):
+                    renpy.sound.play("audio/levelup.ogg")
+            z "[res_msg]"
+        else:
+            z "[res_msg]"
+        jump bloodline_exchange_shop
+        
+    elif b_choice == "leave_bloodline":
+        jump main_room_exploration
+        
+    jump main_room_exploration
+
+
+# ==========================================
+# 道具商城分支
+# ==========================================
+label item_shop_hub:
+    call screen item_shop_screen
+    $ s_choice = _return
+    
+    if isinstance(s_choice, tuple) and len(s_choice) >= 2 and s_choice[0] == "buy_item":
+        $ itm_id = s_choice[1]
+        $ res = purchase_shop_item(itm_id, 1)
+        $ res_msg = res.get("msg", "")
+        z "[res_msg]"
+        jump item_shop_hub
+        
+    elif s_choice == "leave_shop":
+        jump main_room_exploration
+        
+    jump main_room_exploration
+
+
+# ==========================================
+# 個人戰術背包分支
+# ==========================================
+label inventory_menu:
+    call screen inventory_screen
+    $ inv_action = _return
+    
+    if isinstance(inv_action, tuple) and len(inv_action) >= 2:
+        $ act_type = inv_action[0]
+        $ target_id = inv_action[1]
+        
+        if act_type == "equip":
+            $ res = equip_item(target_id, 0)
+            z "[res['msg']]"
+            jump inventory_menu
+            
+        elif act_type == "unequip":
+            $ res = unequip_item(target_id, 0)
+            z "[res['msg']]"
+            jump inventory_menu
+            
+        elif act_type == "use_item":
+            $ res = use_inventory_item(target_id, 0)
+            z "[res['msg']]"
+            jump inventory_menu
+            
+        elif act_type == "discard":
+            $ remove_item(target_id, 1)
+            $ itm = get_item_by_id(target_id)
+            $ d_name = itm.get('name', '物品') if itm else '物品'
+            z "已自背包丟棄【[d_name]】x1。"
+            jump inventory_menu
+            
+    elif inv_action == "close_inventory":
+        jump main_room_exploration
+        
+    jump main_room_exploration
+
+
+# ==========================================
+# 管理員特權指令終端
+# ==========================================
 label admin_command_entry:
     call screen admin_command_screen
     $ cmd_input = _return
@@ -591,77 +442,393 @@ label admin_command_entry:
         z "[res_cmd_msg]"
     jump main_room_exploration
 
-label admin_command_entry_from_shop:
-    call screen admin_command_screen
-    $ cmd_input = _return
-    if cmd_input:
-        $ res_cmd_msg = process_admin_command(cmd_input)
-        python:
-            if renpy.loadable("audio/levelup.ogg"):
-                renpy.sound.play("audio/levelup.ogg")
-        z "[res_cmd_msg]"
-    jump main_exchange_shop
 
-# 中央光球商店邏輯
-label main_exchange_shop:
-    call screen item_exchange_screen
-    $ shop_choice = _return
+# ==========================================
+# 副本世界傳送與新人道德抉擇入口
+# ==========================================
+label campaign_select_entry:
+    call screen campaign_world_select_screen
+    $ w_sel = _return
     
-    if shop_choice == "admin_command":
-        jump admin_command_entry_from_shop
-        
-    elif isinstance(shop_choice, tuple) and len(shop_choice) >= 3 and shop_choice[0] == "buy_bloodline":
-        $ b_id = shop_choice[1]
-        $ g_key = shop_choice[2]
-        $ res = purchase_bloodline(b_id, g_key)
-        $ res_msg = res.get("msg", "")
-        
-        if res.get("success", False):
-            # 播放強化光柱音效（若存在）
-            python:
-                if renpy.loadable("audio/levelup.ogg"):
-                    renpy.sound.play("audio/levelup.ogg")
-            z "[res_msg]"
-        else:
-            z "[res_msg]"
-            
-        jump main_exchange_shop
-        
-    elif shop_choice == "buy_ammo":
-        if points >= 100:
-            $ points -= 100
-            if 'team_roster' in globals() and team_roster:
-                $ team_roster[0]["points"] = points
-            z "兌換成功：獲得 9mm 標準彈藥補給包。"
-        else:
-            z "光球冰冷地機械音響起：「您的生存點數不足。」"
-        jump main_exchange_shop
-
-    elif shop_choice == "buy_spray":
-        if points >= 150:
-            $ points -= 150
-            if 'team_roster' in globals() and team_roster:
-                $ team_roster[0]["points"] = points
-            z "兌換成功：獲得【主神止血急救噴霧】。"
-        else:
-            z "光球冰冷地機械音響起：「您的生存點數不足。」"
-        jump main_exchange_shop
-
-    elif shop_choice == "buy_grenade":
-        if points >= 200:
-            $ points -= 200
-            if 'team_roster' in globals() and team_roster:
-                $ team_roster[0]["points"] = points
-            z "兌換成功：獲得【高爆破片手榴彈】。"
-        else:
-            z "光球冰冷地機械音響起：「您的生存點數不足。」"
-        jump main_exchange_shop
-        
-    elif shop_choice == "leave":
+    if w_sel == "cancel":
         jump main_room_exploration
-
+        
+    elif isinstance(w_sel, tuple) and len(w_sel) >= 2 and w_sel[0] == "select_world":
+        $ current_campaign_world = w_sel[1]
+        $ reset_campaign_nodes()
+        
+        if current_campaign_world == "zombie":
+            menu:
+                "【 📖 重溫主線第一副本劇情 (喪屍末日 · 極光重工遺址) 】":
+                    jump stage_1_1_zombie_city
+                "【 🗺️ 開啟大地圖自由探索模式 (支線/隱藏物資/領主挑戰) 】":
+                    jump campaign_node_map_hub
+        elif current_campaign_world == "space":
+            menu:
+                "【 📖 重溫主線第二副本劇情 (太空真空 · 幽靈母艦異形危機) 】":
+                    jump stage_1_2_alien_ship
+                "【 🗺️ 開啟大地圖自由探索模式 (支線/隱藏物資/領主挑戰) 】":
+                    jump campaign_node_map_hub
+        elif current_campaign_world == "paranormal":
+            menu:
+                "【 📖 重溫主線第三副本劇情 (日式靈異 · 咒怨凶宅) 】":
+                    jump stage_1_3_the_grudge
+                "【 🗺️ 開啟大地圖自由探索模式 (支線/隱藏物資/領主挑戰) 】":
+                    jump campaign_node_map_hub
+        elif current_campaign_world == "magic":
+            menu:
+                "【 📖 重溫主線第四副本劇情 (修真神魔 · 蜀山血海封印) 】":
+                    jump stage_1_4_cultivation_realm
+                "【 🗺️ 開啟大地圖自由探索模式 (支線/隱藏物資/領主挑戰) 】":
+                    jump campaign_node_map_hub
+        elif current_campaign_world == "causality":
+            menu:
+                "【 📖 重溫主線第五副本劇情 (木乃伊遺跡 · 印洲隊團戰決死鬥) 】":
+                    jump stage_1_5_team_battle_india
+                "【 🗺️ 開啟大地圖自由探索模式 (支線/隱藏物資/領主挑戰) 】":
+                    jump campaign_node_map_hub
+        
+        jump campaign_node_map_hub
+        
     jump main_room_exploration
 
-label select_next_dungeon:
-    "你站在巨大的傳送光門前，深吸了一口氣，準備迎接下一個殘酷的恐怖片副本……"
-    jump zombieCity
+
+# ==========================================
+# 副本世界節點探索主循環 (campaign_node_map_hub)
+# ==========================================
+label campaign_node_map_hub:
+    if current_campaign_world == "zombie":
+        call screen zombie_city_map_screen
+        $ node_choice = _return
+        
+        if node_choice == "return_hub":
+            "你選擇退出極光重工遺址，透過輪迴光門返回了輪迴空間廣場。"
+            jump main_room_exploration
+            
+        elif isinstance(node_choice, tuple) and len(node_choice) >= 2:
+            $ act_type = node_choice[0]
+            $ node_id = node_choice[1]
+            $ cur_node = next((n for n in ZOMBIE_MAP_NODES if n["id"] == node_id), None)
+            
+            if act_type == "action_battle" and cur_node:
+                # 判斷是否為已肅清據點 (若已肅清則生成刷新怪群，否則生成首通部隊)
+                $ is_node_done = zombie_map_nodes_state.get(node_id, False)
+                $ target_enemy_specs = cur_node.get('repeatable_enemies', cur_node.get('enemies', [])) if is_node_done else cur_node.get('enemies', [])
+                
+                python:
+                    deployed_team = build_deployed_battle_team() if 'build_deployed_battle_team' in globals() else get_team_roster()
+                    for m in deployed_team:
+                        m['has_acted'] = False
+                    
+                    e_list = []
+                    for e_spec in target_enemy_specs:
+                        e_list.append(create_battle_enemy(e_spec['id'], e_spec.get('suffix', ''), status=e_spec.get('status')))
+                    
+                    log_intro = f"⚠️ 【刷新怪群掃蕩】小隊再次深入【{cur_node['name']}】！" if is_node_done else f"⚠️ 【戰術據點遭遇】小隊突入【{cur_node['name']}】！"
+                    b_state = {
+                        'round_number': 1,
+                        'player_team': deployed_team,
+                        'world_id': 'zombie',
+                        'enemies': e_list,
+                        'logs': [
+                            log_intro,
+                            "💡 提示：靈活運用近戰、遠程射擊與手雷清除所有敵方目標！"
+                        ],
+                        'current_turn_name': '第 1 回合 · 我方行動階段',
+                        'is_player_turn': True,
+                        'selected_actor': None,
+                        'target_mode': None,
+                        'selected_skill': None
+                    }
+                    
+                call screen battle_screen(b_state)
+                $ b_res = _return
+                if b_res == "win":
+                    if not is_node_done:
+                        # 首次攻克獎勵
+                        $ zombie_map_nodes_state[node_id] = True
+                        $ points += cur_node.get('reward_points', 500)
+                        if 'reward_shard' in cur_node:
+                            $ add_fate_shard(cur_node['reward_shard'], 1)
+                        if 'reward_items' in cur_node:
+                            python:
+                                for itm_entry in cur_node['reward_items']:
+                                    add_item(itm_entry['id'], itm_entry['count'])
+                        $ team_roster[0]["points"] = points
+                        if renpy.loadable("audio/levelup.ogg"):
+                            $ renpy.sound.play("audio/levelup.ogg")
+                        $ n_title = cur_node['name']
+                        $ n_pts = cur_node.get('reward_points', 500)
+                        z "🎉【首通大捷】成功攻克【[n_title]】！獲得首通生存點數 +[n_pts] 點與首通戰術物資獎勵！\n（該據點支線已完結，後續僅可重複刷取巡邏怪物素材）"
+                    else:
+                        # 已肅清後的重複掃蕩獎勵 (不重複給予任務關鍵道具與首通命運碎片)
+                        $ rep_pts = cur_node.get('repeatable_points', 150)
+                        $ points += rep_pts
+                        if 'repeatable_items' in cur_node:
+                            python:
+                                for itm_entry in cur_node['repeatable_items']:
+                                    add_item(itm_entry['id'], itm_entry['count'])
+                        $ team_roster[0]["points"] = points
+                        if renpy.loadable("audio/levelup.ogg"):
+                            $ renpy.sound.play("audio/levelup.ogg")
+                        $ n_title = cur_node['name']
+                        z "🎉【掃蕩勝利】成功清剿【[n_title]】刷新怪群！獲得生存點數 +[rep_pts] 點與基礎素材！"
+                jump campaign_node_map_hub
+                
+            elif act_type == "action_quest" and cur_node:
+                # 觸發支線劇情與智鬥檢定
+                if node_id == "node_infirmary":
+                    "你率隊來到了【B1 特種廢棄醫務室】門前，高壓電子防爆鎖發出刺耳的紅光鎖定警告！"
+                    $ max_int = get_team_max_int() if 'get_team_max_int' in globals() else 20
+                    if max_int >= 100:
+                        "【🧠 智者思維感知】隊伍最高智力達到 [max_int] 點（達標 >= 100，蘇曉敏銳破解了防火牆晶片）！"
+                        "咔嚓一聲，氣壓消毒門噴出白色煙霧，保險櫃應聲開啟！"
+                        $ zombie_map_nodes_state["node_infirmary"] = True
+                        $ points += 600
+                        $ add_fate_shard("C", 1)
+                        $ add_item("item_heal_spray", 2)
+                        $ add_item("MAT_ZOMBIE_BLOOD", 10)
+                        $ team_roster[0]["points"] = points
+                        if renpy.loadable("audio/levelup.ogg"):
+                            $ renpy.sound.play("audio/levelup.ogg")
+                        z "【智者判定大成功】完美破解醫務室防盜陣列！獲得【輪迴止血急救噴霧 x2】、【高純度喪屍血清 x10】、C 階命運碎片 x1 與 +600 生存點數！"
+                    else:
+                        "隊伍當前最高智力為 [max_int] 點（未達門檻 100 點），無法無損解鎖，只能暴力破門！"
+                        "嗶——！防爆警報驟響，大批狂暴敏捷型喪屍自天花板通風管道飛撲而下！"
+                        python:
+                            deployed_team = build_deployed_battle_team() if 'build_deployed_battle_team' in globals() else get_team_roster()
+                            for m in deployed_team:
+                                m['has_acted'] = False
+                            b_state = {
+                                'round_number': 1,
+                                'player_team': deployed_team,
+                                'world_id': 'zombie',
+                                'enemies': [
+                                    create_battle_enemy("agile_zombie", "A", status="嗜血狂暴"),
+                                    create_battle_enemy("agile_zombie", "B", status="狂暴突進"),
+                                    create_battle_enemy("MOB_ZOMBIE_01", "A", status="毒液噴濺")
+                                ],
+                                'logs': ["⚠️ 【警報引發突襲】暴力破門引來了敏捷型喪屍群！"],
+                                'current_turn_name': '第 1 回合 · 我方行動階段',
+                                'is_player_turn': True,
+                                'selected_actor': None,
+                                'target_mode': None,
+                                'selected_skill': None
+                            }
+                        call screen battle_screen(b_state)
+                        $ b_res = _return
+                        if b_res == "win":
+                            $ zombie_map_nodes_state["node_infirmary"] = True
+                            $ points += 400
+                            $ add_item("item_heal_spray", 1)
+                            $ team_roster[0]["points"] = points
+                            z "【戰鬥勝利】擊潰守衛喪屍，搜刮醫務室獲得【輪迴止血急救噴霧 x1】與 +400 生存點數！"
+                    jump campaign_node_map_hub
+                    
+                elif node_id == "node_server":
+                    "你率隊進入【中央主控機房】，巨大藍色全息螢幕上閃爍著 A.D.A.M. 亞當核心原始碼！"
+                    $ max_int = get_team_max_int() if 'get_team_max_int' in globals() else 20
+                    if max_int >= 100:
+                        "【🧠 智者思維入侵】隊伍最高智力達到 [max_int] 點（達標 >= 100），成功強行突破自毀程序！"
+                        $ zombie_map_nodes_state["node_server"] = True
+                        $ points += 1000
+                        $ add_fate_shard("B", 1)
+                        $ add_item("ITEM_HIVE_AI_BACKUP", 1)
+                        $ add_item("MAT_TECH_PARTS", 8)
+                        $ team_roster[0]["points"] = points
+                        if renpy.loadable("audio/levelup.ogg"):
+                            $ renpy.sound.play("audio/levelup.ogg")
+                        show adamcore at item_show_center with dissolve
+                        z "【智者駭入大成功】成功下載【亞當神經元矩陣備份 (A.D.A.M. Core)】！獲得 B 階命運碎片 x1、高階超導晶片 x8 與 +1,000 生存點數！"
+                        hide adamcore with dissolve
+                    else:
+                        "智力未達門檻，觸發機房防禦電網，遭遇生化守衛！"
+                        python:
+                            deployed_team = build_deployed_battle_team() if 'build_deployed_battle_team' in globals() else get_team_roster()
+                            for m in deployed_team:
+                                m['has_acted'] = False
+                            b_state = {
+                                'round_number': 1,
+                                'player_team': deployed_team,
+                                'world_id': 'zombie',
+                                'enemies': [
+                                    create_battle_enemy("MOB_ZOMBIE_01", "A", status="重裝防禦"),
+                                    create_battle_enemy("MOB_ZOMBIE_01", "B", status="毒素附著"),
+                                    create_battle_enemy("agile_zombie", "A", status="致命突進")
+                                ],
+                                'logs': ["⚠️ 【防禦系統啟動】機房生化守衛發動反擊！"],
+                                'current_turn_name': '第 1 回合 · 我方行動階段',
+                                'is_player_turn': True,
+                                'selected_actor': None,
+                                'target_mode': None,
+                                'selected_skill': None
+                            }
+                        call screen battle_screen(b_state)
+                        $ b_res = _return
+                        if b_res == "win":
+                            $ zombie_map_nodes_state["node_server"] = True
+                            $ points += 500
+                            $ add_item("MAT_TECH_PARTS", 5)
+                            $ team_roster[0]["points"] = points
+                            z "【戰鬥勝利】擊潰機房守衛，拆解伺服器獲得科技零件 x5 與 +500 生存點數！"
+                    jump campaign_node_map_hub
+                    
+                elif node_id == "node_armory":
+                    "你撬開了【地下軍火管制庫】的防爆門，牆面裝備架上擺放著整齊的軍用高爆物資！"
+                    $ zombie_map_nodes_state["node_armory"] = True
+                    $ points += 500
+                    $ add_item("high_explosive", 2)
+                    $ add_item("item_grenade", 2)
+                    $ team_roster[0]["points"] = points
+                    if renpy.loadable("audio/levelup.ogg"):
+                        $ renpy.sound.play("audio/levelup.ogg")
+                    show high_explosive at item_show_center with dissolve
+                    z "【軍火搜刮成功】獲得【high_explosive 高爆破片手雷 x2】、【高爆手榴彈 x2】與 +500 生存點數！"
+                    hide high_explosive with dissolve
+                    jump campaign_node_map_hub
+                    
+        jump campaign_node_map_hub
+
+    # 其他副本世界回退標準地圖
+    call screen campaign_map_screen
+    $ node_choice = _return
+    
+    if node_choice == "return_hub":
+        "你選擇退出當前世界，透過輪迴光門暫時返回了輪迴空間廣場。"
+        jump main_room_exploration
+        
+    elif isinstance(node_choice, tuple) and len(node_choice) >= 2 and node_choice[0] == "enter_node":
+        $ node_type = node_choice[1]
+        
+        # 1. 主線前鋒據點戰鬥
+        if node_type == "main":
+            "你率領小隊突入主線前哨陣地，遭遇了敵方先鋒防線！"
+            call screen battle_screen
+            $ b_res = _return
+            if b_res == "win":
+                $ campaign_nodes_state["main_cleared"] = True
+                $ points += 500
+                $ team_roster[0]["points"] = points
+                z "【節點突擊勝利】敵方先鋒部隊已被肅清！獲得 +500 生存點數，主線已向前推進！"
+            jump campaign_node_map_hub
+            
+        # 2. 命運碎片精英據點戰鬥
+        elif node_type == "shard":
+            "你踏入了極度危險的精英巢穴，狂暴的精英怪物發出刺耳嘶吼！"
+            call screen battle_screen
+            $ b_res = _return
+            if b_res == "win":
+                $ campaign_nodes_state["shard_cleared"] = True
+                $ w_info = CAMPAIGN_WORLDS.get(current_campaign_world, CAMPAIGN_WORLDS["zombie"])
+                $ s_tier = w_info.get("shard_reward", "C")
+                $ add_fate_shard(s_tier, 1)
+                $ points += 800
+                $ team_roster[0]["points"] = points
+                z "【精英試煉大捷】精英鎮守者轟然倒地！成功掠奪【[s_tier] 階命運碎片 x1】與 +800 生存點數！"
+            jump campaign_node_map_hub
+            
+        # 3. NPC 智鬥/謎題推演據點
+        elif node_type == "riddle":
+            "你來到了一處雕刻著古老符文的機關密室門前，四周散發著致命的毀滅能量。"
+            $ max_int = get_team_max_int() if 'get_team_max_int' in globals() else 20
+            if max_int >= 100:
+                "隊伍中的智者眼中精芒一閃，敏銳推演出機關波長，密室大門應聲開啟！"
+                $ campaign_nodes_state["riddle_cleared"] = True
+                $ points += 800
+                $ add_item("EQ_MAGIC_NECKLACE_01", 1)
+                $ team_roster[0]["points"] = points
+                z "【智鬥破解成功】完美破解謎題！獲得 +800 生存點數與傳奇飾品【定魂辟邪古玉佩】x1！"
+            else:
+                "隊伍中智力不足，你只能親自凝神觀察機關符文（進行直覺推演）："
+                menu:
+                    "【 逆時針轉動純陽生門符印 】":
+                        "咔嚓一聲，機關成功解開！"
+                        $ campaign_nodes_state["riddle_cleared"] = True
+                        $ points += 500
+                        $ team_roster[0]["points"] = points
+                        z "【直覺破解成功】獲得 +500 生存點數！"
+                    "【 順時針強行注入真氣破壞 】":
+                        "轟！機關引爆反噬衝擊波，隊長受到了 30 點真實反噬傷害！"
+                        $ team_roster[0]["hp"] = max(1, team_roster[0]["hp"] - 30)
+                        $ hp = team_roster[0]["hp"]
+            jump campaign_node_map_hub
+            
+        # 4. 野外安全屋補給據點
+        elif node_type == "supply":
+            "你推開了野外安全屋的防爆鋼門，這裡設有輪迴野外應急補給終端。"
+            call screen item_shop_screen
+            jump campaign_node_map_hub
+            
+        # 5. 終極領主決戰
+        elif node_type == "boss":
+            $ w_info = CAMPAIGN_WORLDS.get(current_campaign_world, CAMPAIGN_WORLDS["zombie"])
+            $ b_boss_name = w_info.get("boss_name")
+            "你踏入了核心領主領域，【[b_boss_name]】帶著震碎虛空的恐怖氣壓轟然降臨！"
+            call screen battle_screen
+            $ b_res = _return
+            if b_res == "win":
+                $ s_tier = w_info.get("shard_reward", "C")
+                $ add_fate_shard(s_tier, 1)
+                $ points += 2000
+                $ team_roster[0]["points"] = points
+                z "🎉【世界通關大捷】終極領主【[b_boss_name]】已被徹底擊殺！\n輪迴廣播響起：成功通關本副本世界！獲得 +2,000 點數與【[s_tier] 階命運碎片 x1】！全體隊員傳送回歸輪迴空間！"
+                jump main_room_exploration
+            jump campaign_node_map_hub
+            
+    jump main_room_exploration
+
+
+# ==========================================
+# 房間與劇情對話分支
+# ==========================================
+label lengyue_dialogue:
+    "你走到冷月身旁。她正擦拭著手中古樸的銀色雙槍，神情清冷孤傲。"
+    "冷月抬起頭看了你一眼，淡淡說道：「怎麼？覺得輪迴世界殘酷？只要有輪迴積分和命運碎片，你連神魔之軀都能兌換出來。想活下去，就收起多餘的同情心，盡快讓自己變強。」"
+    jump main_room_exploration
+
+label personal_room:
+    call screen personal_room_screen
+    $ p_act = _return
+    
+    if p_act == "craft_elixir":
+        $ res = craft_gene_lock_elixir()
+        z "[res['msg']]"
+        jump personal_room
+        
+    elif p_act == "use_elixir":
+        $ res = use_gene_lock_elixir(0)
+        python:
+            if res.get("success", False) and renpy.loadable("audio/levelup.ogg"):
+                renpy.sound.play("audio/levelup.ogg")
+        z "[res['msg']]"
+        jump personal_room
+        
+    elif p_act == "install_ai":
+        $ res = install_hive_ai()
+        z "[res['msg']]"
+        jump personal_room
+        
+    elif isinstance(p_act, tuple) and len(p_act) >= 2 and p_act[0] == "craft_tech":
+        $ recipe_id = p_act[1]
+        $ res = craft_tech_equipment(recipe_id)
+        z "[res['msg']]"
+        jump personal_room
+        
+    elif p_act == "leave_room":
+        jump main_room_exploration
+        
+    jump main_room_exploration
+
+label view_team_status:
+    if 'team_roster' not in globals() or not team_roster:
+        $ team_roster = get_team_roster()
+    $ team_roster[0]["points"] = points
+    call screen team_status_screen(page=0)
+    jump main_room_exploration
+
+label home_base_hub:
+    call screen home_base_screen
+    jump main_room_exploration
+
+label main_room_hub:
+    jump main_room_exploration
