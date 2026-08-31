@@ -15,9 +15,10 @@ define ship_ai = Character("母艦主控廣播", color="#ffff00")
 define alien_queen = Character("異形母皇", color="#ff2222")
 
 # 定義關卡背景圖元別名 (全圖縮放拉滿 1920x1080，消除黑邊與馬賽克邊)
-image bg_alien_ship_hub = Transform("images/trial_room.png", xsize=1920, ysize=1080)
-image bg_alien_corridor_vacuum = Transform("images/zombie_street.PNG", xsize=1920, ysize=1080)
-image bg_alien_core_reactor = Transform("images/trial_room.png", xsize=1920, ysize=1080)
+image spaceShip = Transform("images/spaceShip.jpg", xsize=1920, ysize=1080)
+image bg_alien_ship_hub = Transform("images/spaceShip.jpg", xsize=1920, ysize=1080)
+image bg_alien_corridor_vacuum = Transform("images/spaceShip.jpg", xsize=1920, ysize=1080)
+image bg_alien_core_reactor = Transform("images/spaceShip.jpg", xsize=1920, ysize=1080)
 
 # ==========================================
 # 關卡進入點 (相容 alienShip 與 stage_1_2)
@@ -26,15 +27,13 @@ label alienShip:
     jump stage_1_2_alien_ship
 
 label stage_1_2_alien_ship:
-    scene bg_alien_ship_hub with fade
+    scene spaceShip with fade
     
     # -------------------------------------------------------------
-    # 1. 主神光束降臨，新人醒來與規則說明劇情
-    # -------------------------------------------------------------
+    # 1. 輪迴光束降臨，新人醒來與規則說明劇情
     "【深邃冰冷的失重感與刺鼻的機油鐵鏽味瞬間充斥了神經……】"
-    "【主神傳送光束消退，眼前的景象變成了一艘幽暗死寂的巨型深空戰艦內部。】"
+    "【輪迴傳送光束消退，眼前的景象變成了一艘幽暗死寂的巨型深空戰艦內部。】"
     
-    hanyu "這……這是哪裡？！我不是剛在網咖上網嗎？你們是誰？綁架嗎？！"
     
     duanheng "操！少跟我裝神弄鬼！老子在外面有的是錢，開個價放我走，否則我叫人剁了你們！"
     

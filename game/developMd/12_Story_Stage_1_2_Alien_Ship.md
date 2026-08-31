@@ -34,7 +34,7 @@
 
 ```renpy
 label stage_1_2_alien_ship:
-    scene bg_alien_ship_hub with fade
+    scene spaceShip with fade
     
     # -------------------------------------------------------------
     # 1. 主神光束降臨，新人醒來與規則說明劇情

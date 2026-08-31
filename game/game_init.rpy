@@ -48,9 +48,10 @@ image bg_aurora_core = Transform("images/adamcore.jpg", xsize=1920, ysize=1080)
 image adamcore = Transform("images/adamcore.jpg", xalign=0.5, yalign=0.32, xsize=550, ysize=550, fit="contain")
 image adam_ai = Transform("images/adamcore.jpg", xalign=0.5, yalign=0.32, xsize=550, ysize=550, fit="contain")
 image side adam_ai = Transform("images/adamcore.jpg", xsize=240, ysize=240, fit="contain")
-image ITEM_HIVE_AI_BACKUP = Transform("images/adamcore.jpg", xalign=0.5, yalign=0.32, xsize=500, ysize=500, fit="contain")
 image zombieCityMap = Transform("images/zombieCityMap.jpg", xsize=1920, ysize=1080)
 image bg_zombie_city_map = Transform("images/zombieCityMap.jpg", xsize=1920, ysize=1080)
+image spaceShip = Transform("images/spaceShip.jpg", xsize=1920, ysize=1080)
+image bg_spaceShip = Transform("images/spaceShip.jpg", xsize=1920, ysize=1080)
 
 init python:
     import json
