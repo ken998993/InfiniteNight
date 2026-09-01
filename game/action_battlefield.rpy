@@ -656,8 +656,19 @@ screen action_zombie_battle_screen(target_kills=8):
     # 底層加上純黑背景，徹底防範畫面震動或縮放時出現漏底 (穿過底層的 zombie_street)
     add Solid("#000000")
 
-    # 禁用預設右鍵/ESC 呼叫存檔選單，避免與右鍵射擊衝突
+    # 禁用可能干擾 WASD 移動與戰鬥的 Ren'Py 預設快捷鍵 (例如 S 截圖、D 導演、選單等)
     key "game_menu" action NullAction()
+    key "screenshot" action NullAction()
+    key "director" action NullAction()
+    key "accessibility" action NullAction()
+    key "s" action NullAction()
+    key "S" action NullAction()
+    key "a" action NullAction()
+    key "A" action NullAction()
+    key "d" action NullAction()
+    key "D" action NullAction()
+    key "w" action NullAction()
+    key "W" action NullAction()
 
     # 確保 Displayable 正確初始化並維持狀態
     default battle_core = ActionZombieBattleDisplayable(target_kills=target_kills)
