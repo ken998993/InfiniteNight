@@ -320,3 +320,4 @@ elif menu == "⚔️ 數值平衡與戰鬥模擬 (Simulator)":
     with r_col4:
         battle_result = "🏆 勝利 (無損/輕微)" if time_to_kill_monster < time_player_survives * 0.5 else ("⚠️ 慘勝 (重創)" if time_to_kill_monster < time_player_survives else "💀 死亡 (滅團)")
         st.metric("⚔️ 戰局預測", battle_result)
+
