@@ -84,10 +84,13 @@ if source_web_dir:
         except:
             pass
 
+import time
+
 # -----------------------------------------------------------------------------
-# 直接渲染純淨全螢幕遊戲視窗
+# 直接渲染純淨全螢幕遊戲視窗 (加入時間戳參數防瀏覽器快取)
 # -----------------------------------------------------------------------------
+cache_bust = int(time.time())
 st.components.v1.iframe(
-    src="app/static/index.html",
+    src=f"app/static/index.html?t={cache_bust}",
     scrolling=False
 )

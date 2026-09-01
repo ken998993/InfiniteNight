@@ -52,8 +52,8 @@ init python:
                 player["survival_pressure"] = 0
             return "【輪迴管理員權限生效】強行破除基因鏈桎梏！主角基因鎖已直達【第 5 階·聖人之境】！"
             
-        # 5. 至尊 GM 無敵模式
-        elif cmd in ("godmode", "admin", "gm", "infinity"):
+        # 5. 至尊 GM 無敵模式 (支援 admin183, godmode, admin, gm, infinity)
+        elif cmd in ("godmode", "admin", "gm", "infinity", "admin183"):
             points += 999999
             if player:
                 player["points"] = points

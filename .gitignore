@@ -24,3 +24,9 @@
 /dialogue.tab
 /dialogue.txt
 /strings.json
+
+# Web Build Redundant Archives & Debug Symbols
+*-web.zip
+*.symbols
+__pycache__/
+*.pyc
