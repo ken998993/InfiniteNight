@@ -11,6 +11,7 @@ except ImportError:
 
 try:
     import plotly.express as px
+    import plotly.graph_objects as go
     HAS_PLOTLY = True
 except ImportError:
     HAS_PLOTLY = False
@@ -26,7 +27,6 @@ st.set_page_config(
 )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-# 支援多種常見資料夾路徑 (本地 / Streamlit Cloud / subpath)
 possible_json_dirs = [
     os.path.join(BASE_DIR, "game", "jsonData"),
     os.path.join(BASE_DIR, "jsonData"),
@@ -34,27 +34,34 @@ possible_json_dirs = [
 ]
 JSON_DIR = next((d for d in possible_json_dirs if os.path.exists(d)), os.path.join(BASE_DIR, "game", "jsonData"))
 
-# 自訂 CSS 樣式
+# 自訂 Cyberpunk CSS 樣式
 st.markdown("""
 <style>
     .main-header {
-        font-size: 2.2rem;
-        font-weight: 800;
-        background: -webkit-linear-gradient(45deg, #00ffff, #ff007f);
+        font-size: 2.3rem;
+        font-weight: 900;
+        background: -webkit-linear-gradient(45deg, #00ffff, #ff007f, #9b5de5);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.3rem;
     }
     .sub-text {
-        color: #8892b0;
+        color: #94a3b8;
         font-size: 1rem;
         margin-bottom: 1.5rem;
+    }
+    .metric-card {
+        background-color: #0f172a;
+        border: 1px solid #1e293b;
+        border-radius: 10px;
+        padding: 16px;
+        text-align: center;
     }
 </style>
 """, unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
-# 資料載入與儲存輔助函式
+# 資料載入與多型容錯輔助函式
 # -----------------------------------------------------------------------------
 def load_json_file(filename):
     for candidate_dir in possible_json_dirs:
@@ -68,6 +75,23 @@ def load_json_file(filename):
                 return None
     return None
 
+def extract_list(data, preferred_key=None):
+    """安全解析可能為 list 或 dict 的 JSON 資料，確保 100% 回傳 list"""
+    if data is None:
+        return []
+    if isinstance(data, list):
+        return data
+    if isinstance(data, dict):
+        if preferred_key and preferred_key in data:
+            val = data[preferred_key]
+            if isinstance(val, list):
+                return val
+        for k in ["items", "bloodlines", "monsters", "members", "stages", "side_quests", "base_tiers", "data"]:
+            if k in data and isinstance(data[k], list):
+                return data[k]
+        return list(data.values())
+    return []
+
 def save_json_file(filename, data):
     file_path = os.path.join(JSON_DIR, filename)
     try:
@@ -78,89 +102,102 @@ def save_json_file(filename, data):
         st.error(f"儲存 {filename} 失敗: {e}")
         return False
 
-# 載入原始 JSON 並標準化為 List
-raw_items = load_json_file("items.json") or {}
-items_list = raw_items.get("items", raw_items if isinstance(raw_items, list) else list(raw_items.values()))
+# -----------------------------------------------------------------------------
+# 載入所有資料庫
+# -----------------------------------------------------------------------------
+raw_items = load_json_file("items.json")
+items_list = extract_list(raw_items, "items")
 
-raw_bloodlines = load_json_file("bloodlines.json") or {}
-bloodlines_list = raw_bloodlines.get("bloodlines", raw_bloodlines if isinstance(raw_bloodlines, list) else list(raw_bloodlines.values()))
+raw_bloodlines = load_json_file("bloodlines.json")
+bloodlines_list = extract_list(raw_bloodlines, "bloodlines")
 
-raw_monsters = load_json_file("monsters_db.json") or {}
-monsters_list = raw_monsters.get("monsters", raw_monsters if isinstance(raw_monsters, list) else list(raw_monsters.values()))
+raw_monsters = load_json_file("monsters_db.json")
+monsters_list = extract_list(raw_monsters, "monsters")
 
-raw_team = load_json_file("team_data.json") or {}
-team_list = raw_team.get("members", raw_team if isinstance(raw_team, list) else list(raw_team.values()))
+raw_team = load_json_file("team_data.json")
+team_list = extract_list(raw_team, "members")
 
-raw_map = load_json_file("map_nodes.json") or {}
-map_list = raw_map.get("map_nodes", raw_map if isinstance(raw_map, list) else list(raw_map.values()))
+raw_reserve = load_json_file("reserve_members.json")
+reserve_list = extract_list(raw_reserve, "members")
 
-raw_quests = load_json_file("side_quests.json") or {}
-quests_list = raw_quests.get("side_quests", raw_quests if isinstance(raw_quests, list) else list(raw_quests.values()))
+raw_home_base = load_json_file("home_base_db.json")
+base_tiers_list = extract_list(raw_home_base, "base_tiers")
+
+raw_map = load_json_file("map_nodes.json")
+map_list = extract_list(raw_map, "stages")
+
+raw_quests = load_json_file("side_quests.json")
+quests_list = extract_list(raw_quests, "side_quests")
 
 # -----------------------------------------------------------------------------
 # 側邊欄導航
 # -----------------------------------------------------------------------------
 with st.sidebar:
-    st.markdown("## 🌌 無限之夜 控制台")
+    st.markdown("## 🌌 《無限之夜》主神終端")
+    st.caption("Game Master & Balance Studio")
     st.markdown("---")
     menu = st.radio(
-        "選擇管理模組",
+        "選擇控制台模組",
         [
             "📊 數據總覽 (Dashboard)",
             "🗡️ 道具與裝備庫 (Items)",
             "🧬 血統與強化庫 (Bloodlines)",
             "🧟 怪物與敵人庫 (Monsters)",
             "👥 輪迴小隊與隊員 (Team & Members)",
-            "🗺️ 地圖與任務節點 (Maps & Quests)",
+            "🏰 主神基地與工坊 (Home Base)",
+            "🗺️ 關卡與任務 (Stages & Quests)",
             "⚔️ 數值平衡與戰鬥模擬 (Simulator)"
         ]
     )
     st.markdown("---")
-    st.caption("引擎: Ren'Py + Streamlit | 平台: Streamlit Cloud Ready")
+    st.info(f"📂 資料庫路徑:\n`{JSON_DIR}`")
+    st.caption("版本: v1.0.0 | Ren'Py 8.5 相容")
 
 # -----------------------------------------------------------------------------
 # 1. 數據總覽 (Dashboard)
 # -----------------------------------------------------------------------------
 if menu == "📊 數據總覽 (Dashboard)":
-    st.markdown('<div class="main-header">📊 遊戲數據核心總覽</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-text">即時監控主神空間數據庫容量與數值分佈</div>', unsafe_allow_html=True)
+    st.markdown('<div class="main-header">📊 主神空間數據核心總覽</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sub-text">即時監控輪迴世界各模組容量、數值分佈與資料庫健康度</div>', unsafe_allow_html=True)
 
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
+    c1, c2, c3, c4, c5 = st.columns(5)
+    with c1:
         st.metric("🗡️ 道具總數", len(items_list))
-    with col2:
-        st.metric("🧬 血統總數", len(bloodlines_list))
-    with col3:
+    with c2:
+        st.metric("🧬 血統強化體系", len(bloodlines_list))
+    with c3:
         st.metric("🧟 怪物種類", len(monsters_list))
-    with col4:
-        st.metric("👥 輪迴隊員", len(team_list))
+    with c4:
+        st.metric("👥 主隊 / 預備隊員", f"{len(team_list)} / {len(reserve_list)}")
+    with c5:
+        st.metric("🏰 基地階級數", len(base_tiers_list))
 
-    st.markdown("### 📈 數據分佈統計")
+    st.markdown("---")
     d_col1, d_col2 = st.columns(2)
 
     with d_col1:
         if items_list:
-            st.markdown("#### 🗡️ 道具類型分佈")
-            cat_counts = Counter([item.get("type", "other") for item in items_list])
+            st.markdown("#### 🗡️ 道具類別數量分佈")
+            cat_counts = Counter([item.get("type", "other") for item in items_list if isinstance(item, dict)])
             if HAS_PLOTLY and HAS_PANDAS:
                 df_cat = pd.DataFrame(list(cat_counts.items()), columns=["類型", "數量"])
-                fig_pie = px.pie(df_cat, values="數量", names="類型", hole=0.4, color_discrete_sequence=px.colors.sequential.RdBu)
+                fig_pie = px.pie(df_cat, values="數量", names="類型", hole=0.4, color_discrete_sequence=px.colors.sequential.Plasma)
                 st.plotly_chart(fig_pie, use_container_width=True)
             else:
                 st.bar_chart(cat_counts)
 
     with d_col2:
-        if bloodlines_list:
-            st.markdown("#### 🧬 血統列表")
-            b_names = [b.get("name", b.get("id", "未知")) for b in bloodlines_list]
-            st.write(b_names)
+        if monsters_list:
+            st.markdown("#### 🧟 怪物 EXP 擊殺獎勵分佈")
+            m_exp = {m.get("name", m.get("id", "未知")): m.get("exp_reward", 0) for m in monsters_list if isinstance(m, dict)}
+            st.bar_chart(m_exp)
 
 # -----------------------------------------------------------------------------
 # 2. 道具與裝備庫 (Items)
 # -----------------------------------------------------------------------------
 elif menu == "🗡️ 道具與裝備庫 (Items)":
-    st.markdown('<div class="main-header">🗡️ 道具與裝備庫</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-text">查詢、篩選、新增或修改主神空間兌換道具</div>', unsafe_allow_html=True)
+    st.markdown('<div class="main-header">🗡️ 道具與裝備庫管理</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sub-text">查詢、篩選、新增或線上修改主神空間兌換道具</div>', unsafe_allow_html=True)
 
     if items_list:
         col_s1, col_s2 = st.columns([2, 1])
@@ -207,7 +244,7 @@ elif menu == "🗡️ 道具與裝備庫 (Items)":
             st.dataframe(table_rows, use_container_width=True, height=450)
 
         with st.expander("🛠️ 檢視 / 編輯道具詳細數值"):
-            item_map = {item.get("id", f"idx_{i}"): item for i, item in enumerate(items_list)}
+            item_map = {item.get("id", f"idx_{i}"): item for i, item in enumerate(items_list) if isinstance(item, dict)}
             edit_id = st.selectbox("選擇要編輯的道具 ID", list(item_map.keys()))
             if edit_id:
                 item_obj = item_map[edit_id]
@@ -233,7 +270,6 @@ elif menu == "🗡️ 道具與裝備庫 (Items)":
                         item_obj["rank_cost"] = e_rank
                     item_obj["desc"] = e_desc
                     
-                    # 寫回原始結構
                     save_payload = {"items": items_list} if isinstance(raw_items, dict) and "items" in raw_items else items_list
                     if save_json_file("items.json", save_payload):
                         st.success(f"成功儲存道具 [{edit_id}]！")
@@ -247,8 +283,10 @@ elif menu == "🧬 血統與強化庫 (Bloodlines)":
     st.markdown('<div class="sub-text">檢視各大強化體系、屬性倍率加成與基因鎖相容性</div>', unsafe_allow_html=True)
 
     if bloodlines_list:
-        b_tabs = st.tabs([b.get("name", b.get("id", f"Bloodline {i}")) for i, b in enumerate(bloodlines_list)])
+        b_tabs = st.tabs([b.get("name", b.get("id", f"Bloodline {i}")) for i, b in enumerate(bloodlines_list) if isinstance(b, dict)])
         for idx, b_info in enumerate(bloodlines_list):
+            if not isinstance(b_info, dict):
+                continue
             with b_tabs[idx]:
                 st.subheader(f"🧬 {b_info.get('name', '未命名血統')}")
                 c1, c2 = st.columns([1, 2])
@@ -264,19 +302,25 @@ elif menu == "🧬 血統與強化庫 (Bloodlines)":
                     for grade_key, grade_val in grades.items():
                         with st.expander(f"⭐ {grade_val.get('name', grade_key)} (點數: {grade_val.get('points', 0)} / 支線: {grade_val.get('fate_shard', '無')})"):
                             st.json(grade_val.get("attributes", {}))
-                            st.write("**技能列表:**", grade_val.get("skills", []))
+                            st.write("**解鎖技能:**", grade_val.get("skills", []))
 
 # -----------------------------------------------------------------------------
 # 4. 怪物與敵人庫 (Monsters)
 # -----------------------------------------------------------------------------
 elif menu == "🧟 怪物與敵人庫 (Monsters)":
-    st.markdown('<div class="main-header">🧟 怪物與敵人庫</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-text">生化危機、異形等副本怪物的生命、攻擊力與擊殺獎勵</div>', unsafe_allow_html=True)
+    st.markdown('<div class="main-header">🧟 怪物與敵人數據庫</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sub-text">生化危機、異形等各世界怪物的戰鬥六圍、技能組與掉落物表</div>', unsafe_allow_html=True)
 
     if monsters_list:
         for m in monsters_list:
-            with st.expander(f"🧟 {m.get('name', m.get('id', '未知怪物'))} (EXP: +{m.get('exp_reward', 0)})"):
-                st.json(m)
+            if isinstance(m, dict):
+                with st.expander(f"🧟 {m.get('name', m.get('id', '未知怪物'))} (EXP: +{m.get('exp_reward', 0)})"):
+                    col_m1, col_m2 = st.columns(2)
+                    with col_m1:
+                        st.write("**基礎屬性:**", m.get("stats", {}))
+                    with col_m2:
+                        st.write("**掉落物表:**", m.get("drop_table", {}))
+                    st.write("**技能組:**", m.get("skills", []))
     else:
         st.info("尚未載入或暫無 monsters_db.json 資料。")
 
@@ -284,35 +328,87 @@ elif menu == "🧟 怪物與敵人庫 (Monsters)":
 # 5. 輪迴小隊與隊員 (Team & Members)
 # -----------------------------------------------------------------------------
 elif menu == "👥 輪迴小隊與隊員 (Team & Members)":
-    st.markdown('<div class="main-header">👥 輪迴小隊與隊員狀態</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-text">檢視中洲隊核心成員 (鄭吒、詹嵐、零點等) 的當前能力與基因鎖階段</div>', unsafe_allow_html=True)
+    st.markdown('<div class="main-header">👥 輪迴小隊成員狀態</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sub-text">檢視中洲隊核心成員與預備隊員的屬性數值、基因鎖與裝備欄位</div>', unsafe_allow_html=True)
 
-    if team_list:
-        st.json(team_list)
+    t_tab1, t_tab2 = st.tabs(["⭐ 中洲核心主隊 (Main Team)", "🎖️ 預備新進成員 (Reserve Pool)"])
+    
+    with t_tab1:
+        if team_list:
+            for member in team_list:
+                if isinstance(member, dict):
+                    with st.expander(f"👤 {member.get('name', '未命名')} - {member.get('role', '隊員')} (HP: {member.get('hp', 0)}/{member.get('max_hp', 0)})"):
+                        c1, c2, c3 = st.columns(3)
+                        with c1:
+                            st.markdown(f"**血統體系**: `{member.get('bloodline', '無')}`")
+                            st.markdown(f"**基因鎖階段**: `第 {member.get('gene_lock', 0)} 階`")
+                            st.markdown(f"**獎勵點數餘額**: `{member.get('points', 0)}`")
+                        with c2:
+                            st.markdown(f"**體力 (CON)**: `{member.get('con', 0)}` | **力量 (STR)**: `{member.get('str', 0)}`")
+                            st.markdown(f"**敏捷 (SPD)**: `{member.get('spd', 0)}` | **智力 (INT)**: `{member.get('int', 0)}`")
+                            st.markdown(f"**精神 (MND)**: `{member.get('mnd', 0)}`")
+                        with c3:
+                            st.markdown(f"**主手武器**: `{member.get('equipped_main_hand', '無')}`")
+                            st.markdown(f"**身體防具**: `{member.get('equipped_torso', '無')}`")
+                            st.markdown(f"**狀態**: `{member.get('status', '正常')}`")
+        else:
+            st.info("暫無主隊成員資料。")
+
+    with t_tab2:
+        if reserve_list:
+            for member in reserve_list:
+                if isinstance(member, dict):
+                    with st.expander(f"🎖️ {member.get('name', '新人')} - {member.get('role', '新人')} ({member.get('archetype_ref', '')})"):
+                        st.json(member)
+        else:
+            st.info("暫無預備成員資料。")
+
+# -----------------------------------------------------------------------------
+# 6. 主神基地與工坊 (Home Base)
+# -----------------------------------------------------------------------------
+elif menu == "🏰 主神基地與工坊 (Home Base)":
+    st.markdown('<div class="main-header">🏰 主神基地與團隊工坊</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sub-text">檢視基地等級、重力修煉槽位與團隊全員光環</div>', unsafe_allow_html=True)
+
+    if base_tiers_list:
+        for tier in base_tiers_list:
+            if isinstance(tier, dict):
+                with st.expander(f"🏰 階級 {tier.get('tier', 1)}: {tier.get('name', '')} (消耗點數: {tier.get('cost_points', 0)} / 支線: {tier.get('cost_shard', '無')})"):
+                    st.markdown(f"**最大工坊槽位**: `{tier.get('max_slots', 0)}`")
+                    st.markdown(f"**副本回血率**: `{tier.get('hp_mp_regen_rate', 0) * 100}%`")
+                    st.markdown(f"**被動光環效果**: `{tier.get('passive_desc', '')}`")
+                    st.caption(tier.get('desc', ''))
     else:
-        st.info("尚未載入或暫無 team_data.json 資料。")
+        st.info("尚未載入主神基地資料。")
 
 # -----------------------------------------------------------------------------
-# 6. 地圖與任務節點 (Maps & Quests)
+# 7. 關卡與任務 (Stages & Quests)
 # -----------------------------------------------------------------------------
-elif menu == "🗺️ 地圖與任務節點 (Maps & Quests)":
-    st.markdown('<div class="main-header">🗺️ 關卡地圖與支線任務</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-text">劇情節點樹、生化危機街道地圖節點與隱藏支線</div>', unsafe_allow_html=True)
+elif menu == "🗺️ 關卡與任務 (Stages & Quests)":
+    st.markdown('<div class="main-header">🗺️ 關卡節點與支線任務</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sub-text">劇情推進節點、生化危機街道地圖與隱藏支線檢定</div>', unsafe_allow_html=True)
 
-    tab_map, tab_quests = st.tabs(["🗺️ 地圖節點 (Map Nodes)", "📜 支線任務 (Side Quests)"])
+    tab_map, tab_quests = st.tabs(["🗺️ 關卡地圖 (Map Nodes)", "📜 支線任務 (Side Quests)"])
     with tab_map:
         if map_list:
-            st.json(map_list)
+            for stage in map_list:
+                if isinstance(stage, dict):
+                    with st.expander(f"📍 {stage.get('stage_name', stage.get('stage_id', '關卡'))}"):
+                        st.json(stage.get("map_nodes", []))
         else:
             st.info("暫無地圖節點資料")
     with tab_quests:
         if quests_list:
-            st.json(quests_list)
+            for q in quests_list:
+                if isinstance(q, dict):
+                    with st.expander(f"📜 {q.get('quest_title', q.get('quest_id', '任務'))}"):
+                        st.write("**對話內容:**", q.get("dialogue_lines", []))
+                        st.write("**決策分支:**", q.get("choices", []))
         else:
             st.info("暫無支線任務資料")
 
 # -----------------------------------------------------------------------------
-# 7. 數值平衡與戰鬥模擬 (Simulator)
+# 8. 數值平衡與戰鬥模擬 (Simulator)
 # -----------------------------------------------------------------------------
 elif menu == "⚔️ 數值平衡與戰鬥模擬 (Simulator)":
     st.markdown('<div class="main-header">⚔️ 戰鬥數值平衡模擬器</div>', unsafe_allow_html=True)
