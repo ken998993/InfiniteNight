@@ -1,31 +1,58 @@
 import streamlit as st
 import json
 import os
-from collections import Counter
-
-try:
-    import pandas as pd
-    HAS_PANDAS = True
-except ImportError:
-    HAS_PANDAS = False
-
-try:
-    import plotly.express as px
-    import plotly.graph_objects as go
-    HAS_PLOTLY = True
-except ImportError:
-    HAS_PLOTLY = False
+import random
+import time
 
 # -----------------------------------------------------------------------------
-# 頁面基本配置 (Cyberpunk / Infinite Night 主題風格)
+# 頁面配置 (Cyberpunk / Infinite Night 沉浸風格)
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="無限之夜 Infinite Night - 遊戲數據控制台",
+    page_title="無限之夜 Infinite Night - 輪迴世界",
     page_icon="🌌",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
+# 自訂 Cyberpunk UI 樣式
+st.markdown("""
+<style>
+    .main-title {
+        font-size: 2.4rem;
+        font-weight: 900;
+        background: -webkit-linear-gradient(45deg, #00f0ff, #ff007f, #ffe600);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 20px rgba(0,240,255,0.4);
+        margin-bottom: 0.2rem;
+    }
+    .sub-title {
+        color: #94a3b8;
+        font-size: 1.05rem;
+        margin-bottom: 1.2rem;
+    }
+    .combat-log {
+        background-color: #0b0f19;
+        border: 1px solid #1e293b;
+        border-radius: 8px;
+        padding: 12px;
+        font-family: 'Consolas', 'Courier New', monospace;
+        color: #38bdf8;
+        height: 220px;
+        overflow-y: auto;
+    }
+    .status-card {
+        background-color: #0f172a;
+        border: 1px solid #334155;
+        border-radius: 10px;
+        padding: 15px;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# -----------------------------------------------------------------------------
+# 載入 JSON 資料庫 (容錯多路徑)
+# -----------------------------------------------------------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 possible_json_dirs = [
     os.path.join(BASE_DIR, "game", "jsonData"),
@@ -34,433 +61,603 @@ possible_json_dirs = [
 ]
 JSON_DIR = next((d for d in possible_json_dirs if os.path.exists(d)), os.path.join(BASE_DIR, "game", "jsonData"))
 
-# 自訂 Cyberpunk CSS 樣式
-st.markdown("""
-<style>
-    .main-header {
-        font-size: 2.3rem;
-        font-weight: 900;
-        background: -webkit-linear-gradient(45deg, #00ffff, #ff007f, #9b5de5);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 0.3rem;
-    }
-    .sub-text {
-        color: #94a3b8;
-        font-size: 1rem;
-        margin-bottom: 1.5rem;
-    }
-    .metric-card {
-        background-color: #0f172a;
-        border: 1px solid #1e293b;
-        border-radius: 10px;
-        padding: 16px;
-        text-align: center;
-    }
-</style>
-""", unsafe_allow_html=True)
-
-# -----------------------------------------------------------------------------
-# 資料載入與多型容錯輔助函式
-# -----------------------------------------------------------------------------
-def load_json_file(filename):
+def load_game_json(filename):
     for candidate_dir in possible_json_dirs:
         fp = os.path.join(candidate_dir, filename)
         if os.path.exists(fp):
             try:
                 with open(fp, "r", encoding="utf-8") as f:
                     return json.load(f)
-            except Exception as e:
-                st.error(f"讀取 {filename} 失敗: {e}")
-                return None
+            except:
+                pass
     return None
 
-def extract_list(data, preferred_key=None):
-    """安全解析可能為 list 或 dict 的 JSON 資料，確保 100% 回傳 list"""
-    if data is None:
-        return []
-    if isinstance(data, list):
-        return data
-    if isinstance(data, dict):
-        if preferred_key and preferred_key in data:
-            val = data[preferred_key]
-            if isinstance(val, list):
-                return val
-        for k in ["items", "bloodlines", "monsters", "members", "stages", "side_quests", "base_tiers", "data"]:
-            if k in data and isinstance(data[k], list):
-                return data[k]
-        return list(data.values())
-    return []
-
-def save_json_file(filename, data):
-    file_path = os.path.join(JSON_DIR, filename)
-    try:
-        with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
-        return True
-    except Exception as e:
-        st.error(f"儲存 {filename} 失敗: {e}")
-        return False
+ITEMS_DB = load_game_json("items.json") or {}
+BLOODLINES_DB = load_game_json("bloodlines.json") or {}
+MONSTERS_DB = load_game_json("monsters_db.json") or {}
 
 # -----------------------------------------------------------------------------
-# 載入所有資料庫
+# 初始化遊戲存檔狀態 (Session State)
 # -----------------------------------------------------------------------------
-raw_items = load_json_file("items.json")
-items_list = extract_list(raw_items, "items")
-
-raw_bloodlines = load_json_file("bloodlines.json")
-bloodlines_list = extract_list(raw_bloodlines, "bloodlines")
-
-raw_monsters = load_json_file("monsters_db.json")
-monsters_list = extract_list(raw_monsters, "monsters")
-
-raw_team = load_json_file("team_data.json")
-team_list = extract_list(raw_team, "members")
-
-raw_reserve = load_json_file("reserve_members.json")
-reserve_list = extract_list(raw_reserve, "members")
-
-raw_home_base = load_json_file("home_base_db.json")
-base_tiers_list = extract_list(raw_home_base, "base_tiers")
-
-raw_map = load_json_file("map_nodes.json")
-map_list = extract_list(raw_map, "stages")
-
-raw_quests = load_json_file("side_quests.json")
-quests_list = extract_list(raw_quests, "side_quests")
-
-# -----------------------------------------------------------------------------
-# 側邊欄導航
-# -----------------------------------------------------------------------------
-with st.sidebar:
-    st.markdown("## 🌌 《無限之夜》主神終端")
-    st.caption("Game Master & Balance Studio")
-    st.markdown("---")
-    menu = st.radio(
-        "選擇控制台模組",
-        [
-            "📊 數據總覽 (Dashboard)",
-            "🗡️ 道具與裝備庫 (Items)",
-            "🧬 血統與強化庫 (Bloodlines)",
-            "🧟 怪物與敵人庫 (Monsters)",
-            "👥 輪迴小隊與隊員 (Team & Members)",
-            "🏰 主神基地與工坊 (Home Base)",
-            "🗺️ 關卡與任務 (Stages & Quests)",
-            "⚔️ 數值平衡與戰鬥模擬 (Simulator)"
+if "player" not in st.session_state:
+    st.session_state.player = {
+        "name": "顧臨淵",
+        "role": "輪迴破局者",
+        "level": 1,
+        "exp": 0,
+        "level_cap": 30,
+        "hp": 250,
+        "max_hp": 250,
+        "mp": 120,
+        "max_mp": 120,
+        "energy_name": "無",
+        "energy": 0,
+        "max_energy": 0,
+        "points": 1500,
+        "shards": {"D": 1, "C": 0, "B": 0, "A": 0, "S": 0},
+        "stats": {"con": 30, "str": 25, "spd": 25, "int": 50, "mnd": 25},
+        "bloodline": None,
+        "bloodline_grade": None,
+        "gene_lock": 0,
+        "gene_lock_active": False,
+        "weapon": {"name": "高頻電磁軍刀", "atk": 35, "type": "melee"},
+        "armor": {"name": "奈米戰術防彈衣", "def": 15},
+        "inventory": [
+            {"id": "item_heal_spray", "name": "輪迴止血急救噴霧", "count": 3, "effect": "heal_hp", "val": 100},
+            {"id": "item_mp_potion", "name": "強效精神穩定劑", "count": 2, "effect": "heal_mp", "val": 60}
         ]
-    )
-    st.markdown("---")
-    st.info(f"📂 資料庫路徑:\n`{JSON_DIR}`")
-    st.caption("版本: v1.0.0 | Ren'Py 8.5 相容")
+    }
+
+if "game_state" not in st.session_state:
+    st.session_state.game_state = "hub"  # "hub", "mission_explore", "battle", "game_over"
+
+if "combat" not in st.session_state:
+    st.session_state.combat = {
+        "enemy": None,
+        "log": ["🌌 輪迴終端連線成功。主神空間整備中..."],
+        "turn": 1
+    }
+
+if "mission" not in st.session_state:
+    st.session_state.mission = {
+        "name": "生化危機・蜂巢地下設施",
+        "progress": 0,
+        "stage": 1,
+        "events_cleared": []
+    }
+
+def add_log(text):
+    st.session_state.combat["log"].append(f"[{time.strftime('%H:%M:%S')}] {text}")
 
 # -----------------------------------------------------------------------------
-# 1. 數據總覽 (Dashboard)
+# 戰鬥輔助邏輯
 # -----------------------------------------------------------------------------
-if menu == "📊 數據總覽 (Dashboard)":
-    st.markdown('<div class="main-header">📊 主神空間數據核心總覽</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-text">即時監控輪迴世界各模組容量、數值分佈與資料庫健康度</div>', unsafe_allow_html=True)
+def start_battle(enemy_type="agile_zombie"):
+    p = st.session_state.player
+    enemy_stats = {
+        "agile_zombie": {"name": "敏捷型突變喪屍", "hp": 120, "max_hp": 120, "atk": 22, "def": 8, "spd": 28, "exp": 80, "points": 150, "drop_shard": "D", "shard_rate": 0.3},
+        "licker": {"name": "爬行者 (Licker)", "hp": 260, "max_hp": 260, "atk": 45, "def": 18, "spd": 35, "exp": 180, "points": 350, "drop_shard": "D", "shard_rate": 0.6},
+        "tyrant": {"name": "暴君 (Tyrant T-002)", "hp": 650, "max_hp": 650, "atk": 75, "def": 30, "spd": 20, "exp": 500, "points": 1200, "drop_shard": "C", "shard_rate": 1.0}
+    }
+    target = enemy_stats.get(enemy_type, enemy_stats["agile_zombie"]).copy()
+    st.session_state.combat["enemy"] = target
+    st.session_state.combat["turn"] = 1
+    st.session_state.player["gene_lock_active"] = False
+    st.session_state.game_state = "battle"
+    add_log(f"⚠️ 警告！遭遇敵方目標：【{target['name']}】！進入戰鬥！")
 
-    c1, c2, c3, c4, c5 = st.columns(5)
-    with c1:
-        st.metric("🗡️ 道具總數", len(items_list))
-    with c2:
-        st.metric("🧬 血統強化體系", len(bloodlines_list))
-    with c3:
-        st.metric("🧟 怪物種類", len(monsters_list))
-    with c4:
-        st.metric("👥 主隊 / 預備隊員", f"{len(team_list)} / {len(reserve_list)}")
-    with c5:
-        st.metric("🏰 基地階級數", len(base_tiers_list))
+def player_attack(action_type="normal", skill=None):
+    p = st.session_state.player
+    e = st.session_state.combat["enemy"]
+    if not e or e["hp"] <= 0:
+        return
 
-    st.markdown("---")
-    d_col1, d_col2 = st.columns(2)
+    # 計算玩家基礎攻擊
+    base_atk = p["stats"]["str"] * 1.2 + p["weapon"]["atk"]
+    
+    # 基因鎖加成
+    if p["gene_lock_active"]:
+        lock_multiplier = 1.0 + p["gene_lock"] * 0.5
+        base_atk *= lock_multiplier
 
-    with d_col1:
-        if items_list:
-            st.markdown("#### 🗡️ 道具類別數量分佈")
-            cat_counts = Counter([item.get("type", "other") for item in items_list if isinstance(item, dict)])
-            if HAS_PLOTLY and HAS_PANDAS:
-                df_cat = pd.DataFrame(list(cat_counts.items()), columns=["類型", "數量"])
-                fig_pie = px.pie(df_cat, values="數量", names="類型", hole=0.4, color_discrete_sequence=px.colors.sequential.Plasma)
-                st.plotly_chart(fig_pie, use_container_width=True)
-            else:
-                st.bar_chart(cat_counts)
+    # 暴擊判定
+    is_crit = (random.random() < (0.15 + (p["stats"]["spd"] * 0.005) + (0.25 if p["gene_lock_active"] else 0.0)))
+    crit_mult = 2.0 if is_crit else 1.0
 
-    with d_col2:
-        if monsters_list:
-            st.markdown("#### 🧟 怪物 EXP 擊殺獎勵分佈")
-            m_exp = {m.get("name", m.get("id", "未知")): m.get("exp_reward", 0) for m in monsters_list if isinstance(m, dict)}
-            st.bar_chart(m_exp)
+    damage = 0
+    if action_type == "normal":
+        damage = max(5, int((base_atk * crit_mult) - e["def"]))
+        e["hp"] = max(0, e["hp"] - damage)
+        crit_str = " 🔥【暴擊 CRITICAL!】" if is_crit else ""
+        add_log(f"⚔️ {p['name']} 揮動【{p['weapon']['name']}】斬擊，對【{e['name']}】造成 {damage} 點傷害！{crit_str}")
 
-# -----------------------------------------------------------------------------
-# 2. 道具與裝備庫 (Items)
-# -----------------------------------------------------------------------------
-elif menu == "🗡️ 道具與裝備庫 (Items)":
-    st.markdown('<div class="main-header">🗡️ 道具與裝備庫管理</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-text">查詢、篩選、新增或線上修改主神空間兌換道具</div>', unsafe_allow_html=True)
-
-    if items_list:
-        col_s1, col_s2 = st.columns([2, 1])
-        with col_s1:
-            search_kw = st.text_input("🔍 搜尋道具名稱 / ID / 標籤", "")
-        with col_s2:
-            all_types = ["全部"] + sorted(list(set([item.get("type", "other") for item in items_list if isinstance(item, dict)])))
-            selected_type = st.selectbox("道具類別篩選", all_types)
-
-        filtered_items = []
-        for item in items_list:
-            if not isinstance(item, dict):
-                continue
-            item_id = item.get("id", "")
-            name = item.get("name", item_id)
-            itype = item.get("type", "other")
-            tags = " ".join(item.get("tags", []))
+    elif action_type == "skill" and skill:
+        if p["mp"] >= skill.get("mp_cost", 0) and p["energy"] >= skill.get("energy_cost", 0):
+            p["mp"] -= skill.get("mp_cost", 0)
+            p["energy"] -= skill.get("energy_cost", 0)
+            skill_dmg = base_atk * skill.get("mult", 1.8) * crit_mult
+            damage = max(10, int(skill_dmg - e["def"] * 0.5))
+            e["hp"] = max(0, e["hp"] - damage)
             
-            if selected_type != "全部" and itype != selected_type:
-                continue
-            if search_kw and (search_kw.lower() not in item_id.lower() and search_kw.lower() not in name.lower() and search_kw.lower() not in tags.lower()):
-                continue
-            filtered_items.append(item)
+            # 特殊吸血或特效
+            if skill.get("heal", 0) > 0:
+                heal_amt = skill["heal"]
+                p["hp"] = min(p["max_hp"], p["hp"] + heal_amt)
+                add_log(f"🩸 釋放【{skill['name']}】！撕裂造成 {damage} 傷害，並汲取恢復了 {heal_amt} 點生命！")
+            else:
+                add_log(f"⚡ 釋放血統戰技【{skill['name']}】！爆發造成 {damage} 點毀滅性傷害！")
+        else:
+            add_log("⚠️ 精神力或血統能量不足，無法施展技能！")
+            return
 
-        st.caption(f"共找到 {len(filtered_items)} 個道具")
+    # 敵方死亡判定
+    if e["hp"] <= 0:
+        win_battle(e)
+        return
 
-        table_rows = []
-        for item in filtered_items:
-            table_rows.append({
-                "ID": item.get("id", "-"),
-                "名稱": item.get("name", "-"),
-                "類型": item.get("type", "-"),
-                "價格 (點數)": item.get("cost_points", item.get("cost", 0)),
-                "支線等級": str(item.get("cost_fate_shard", item.get("rank_cost", "-"))),
-                "效果值": item.get("effect_val", "-"),
-                "說明": item.get("desc", item.get("description", "-")),
-                "標籤": ", ".join(item.get("tags", []))
-            })
+    # 敵方反擊回合
+    enemy_turn(e)
+
+def enemy_turn(e):
+    p = st.session_state.player
+    # 閃避判定 (基於 SPD 差)
+    dodge_chance = min(0.4, max(0.05, (p["stats"]["spd"] - e["spd"]) * 0.01))
+    if random.random() < dodge_chance:
+        add_log(f"💨 {p['name']} 身形一閃，成功殘影閃避了【{e['name']}】的致命攻擊！")
+    else:
+        raw_e_atk = e["atk"] * random.uniform(0.85, 1.15)
+        e_dmg = max(5, int(raw_e_atk - p["armor"]["def"] - (p["stats"]["con"] * 0.3)))
+        p["hp"] = max(0, p["hp"] - e_dmg)
+        add_log(f"💥 【{e['name']}】發動猛烈反撲！對 {p['name']} 造成 {e_dmg} 點實質傷害！")
         
-        if HAS_PANDAS:
-            df_items = pd.DataFrame(table_rows)
-            st.dataframe(df_items, use_container_width=True, height=450)
-        else:
-            st.dataframe(table_rows, use_container_width=True, height=450)
+        if p["hp"] <= 0:
+            st.session_state.game_state = "game_over"
+            add_log("💀 你的生命跡象歸零... 輪迴突圍失敗！")
 
-        with st.expander("🛠️ 檢視 / 編輯道具詳細數值"):
-            item_map = {item.get("id", f"idx_{i}"): item for i, item in enumerate(items_list) if isinstance(item, dict)}
-            edit_id = st.selectbox("選擇要編輯的道具 ID", list(item_map.keys()))
-            if edit_id:
-                item_obj = item_map[edit_id]
-                e_col1, e_col2 = st.columns(2)
-                with e_col1:
-                    e_name = st.text_input("道具名稱", item_obj.get("name", edit_id))
-                    e_type = st.text_input("類型 (weapon, equipment, consumable, tactical, material...)", item_obj.get("type", "consumable"))
-                    e_cost = st.number_input("獎勵點消耗 (Points)", min_value=0, value=int(item_obj.get("cost_points", item_obj.get("cost", 0))))
-                with e_col2:
-                    e_rank = st.text_input("支線劇情等級 (如 D, C, B, A, S)", str(item_obj.get("cost_fate_shard", item_obj.get("rank_cost", ""))))
-                    e_desc = st.text_area("道具詳細說明", item_obj.get("desc", item_obj.get("description", "")))
-                
-                if st.button("💾 儲存修改至 items.json"):
-                    item_obj["name"] = e_name
-                    item_obj["type"] = e_type
-                    if "cost_points" in item_obj:
-                        item_obj["cost_points"] = e_cost
-                    else:
-                        item_obj["cost"] = e_cost
-                    if "cost_fate_shard" in item_obj:
-                        item_obj["cost_fate_shard"] = e_rank if e_rank else None
-                    else:
-                        item_obj["rank_cost"] = e_rank
-                    item_obj["desc"] = e_desc
-                    
-                    save_payload = {"items": items_list} if isinstance(raw_items, dict) and "items" in raw_items else items_list
-                    if save_json_file("items.json", save_payload):
-                        st.success(f"成功儲存道具 [{edit_id}]！")
+def win_battle(e):
+    p = st.session_state.player
+    add_log(f"🏆 成功殲滅目標【{e['name']}】！戰鬥勝利！")
+    
+    # 獎勵點數與經驗值
+    p["points"] += e["points"]
+    p["exp"] += e["exp"]
+    add_log(f"✨ 獲得獎勵：+{e['points']} 獎勵點數，+{e['exp']} 經驗值 (EXP)")
+
+    # 命運碎片掉落
+    if random.random() < e.get("shard_rate", 0):
+        shard_rank = e.get("drop_shard", "D")
+        p["shards"][shard_rank] = p["shards"].get(shard_rank, 0) + 1
+        add_log(f"💎 狂喜！從敵方殘骸中搜尋到：【{shard_rank} 階命運碎片】 x1！")
+
+    # 升級檢查
+    check_level_up()
+
+    # 推進副本進度
+    st.session_state.mission["progress"] += 25
+    st.session_state.game_state = "mission_explore"
+
+def check_level_up():
+    p = st.session_state.player
+    req_exp = p["level"] * 100
+    while p["exp"] >= req_exp:
+        if p["level"] < p["level_cap"]:
+            p["exp"] -= req_exp
+            p["level"] += 1
+            p["max_hp"] += 20
+            p["hp"] = p["max_hp"]
+            p["max_mp"] += 10
+            p["mp"] = p["max_mp"]
+            p["stats"]["con"] += 2
+            p["stats"]["str"] += 2
+            p["stats"]["spd"] += 2
+            p["stats"]["int"] += 2
+            p["stats"]["mnd"] += 2
+            add_log(f"🌟 等級突破！恭喜晉升至【Lv. {p['level']}】！生命/精神全滿，全屬性提升！")
+            req_exp = p["level"] * 100
+        else:
+            add_log(f"⚠️ 經驗值已滿，但受到【等級上限 (Lv. {p['level_cap']})】枷鎖限制！請突破基因鎖或加載高階血統！")
+            break
+
+# -------------------------------------------------------------
+# 頂部狀態列 (玩家即時 HUD 面板)
+# -------------------------------------------------------------
+p = st.session_state.player
+col_h1, col_h2, col_h3, col_h4, col_h5 = st.columns(5)
+with col_h1:
+    st.markdown(f"**👤 {p['name']}** (Lv. {p['level']} / {p['level_cap']})")
+    hp_pct = max(0.0, min(1.0, p['hp'] / p['max_hp']))
+    st.progress(hp_pct, text=f"HP: {p['hp']}/{p['max_hp']}")
+with col_h2:
+    st.markdown(f"**🧬 基因鎖**: `第 {p['gene_lock']} 階`")
+    mp_pct = max(0.0, min(1.0, p['mp'] / p['max_mp']))
+    st.progress(mp_pct, text=f"MP: {p['mp']}/{p['max_mp']}")
+with col_h3:
+    st.markdown(f"**🩸 當前血統**: `{p['bloodline'] or '無 (純人類)'}`")
+    st.caption(f"裝備: {p['weapon']['name']} / {p['armor']['name']}")
+with col_h4:
+    st.markdown(f"**💰 獎勵點數**: `{p['points']} pts`")
+    shards_txt = " | ".join([f"{k}:{v}" for k, v in p['shards'].items() if v > 0]) or "無"
+    st.markdown(f"**💎 命運碎片**: `{shards_txt}`")
+with col_h5:
+    st.markdown(f"**⚡ 戰鬥六圍總覽**")
+    st.caption(f"體質 {p['stats']['con']} | 力量 {p['stats']['str']} | 敏捷 {p['stats']['spd']} | 智力 {p['stats']['int']} | 精神 {p['stats']['mnd']}")
+
+st.markdown("---")
+
+# =============================================================================
+# 場景 1: 🏛️ 主神空間 (Main God Hub)
+# =============================================================================
+if st.session_state.game_state == "hub":
+    st.markdown('<div class="main-header">🏛️ 主神空間・輪迴樞紐大廳</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sub-text">在巨大的光團之下，你可以進行全身修復、兌換高階血統、強化身體六圍與整備戰術裝備。</div>', unsafe_allow_html=True)
+
+    hub_tab1, hub_tab2, hub_tab3, hub_tab4, hub_tab5 = st.tabs([
+        "🚀 副本傳送門 (Mission)",
+        "💫 全身修復 (Restore)",
+        "🧬 血統強化儀 (Bloodline)",
+        "🛒 主神物資兌換 (Shop)",
+        "🏋️ 重力修煉室 (Training)"
+    ])
+
+    # 1. 副本傳送門
+    with hub_tab1:
+        st.subheader("🌌 選擇出擊輪迴世界副本")
+        col_m1, col_m2 = st.columns(2)
+        with col_m1:
+            st.markdown("""
+            ### 🧟 副本 1：生化危機・蜂巢地下突圍
+            * **難度階級**: `⭐⭐ (入門~進階)`
+            * **任務目標**: 突破生化地下防禦閘門，擊敗攔截的突變敏捷喪屍、爬行者與終極暴君 T-002。
+            * **通關獎勵**: `2000 點數 + D階命運碎片 x2 + C階命運碎片 x1`
+            """)
+            if st.button("🚀 即刻傳送進入【生化危機・蜂巢】", type="primary", use_container_width=True):
+                st.session_state.mission = {
+                    "name": "生化危機・蜂巢地下設施",
+                    "progress": 0,
+                    "stage": 1,
+                    "events_cleared": []
+                }
+                st.session_state.game_state = "mission_explore"
+                add_log("🌌 白光閃爍！傳送抵達生化危機・蜂巢 B1 層入口！")
+                st.rerun()
+
+        with col_m2:
+            st.markdown("""
+            ### 👽 副本 2：異形・諾史莫號太空孤艦 (即將解鎖)
+            * **難度階級**: `⭐⭐⭐⭐ (極度危險)`
+            * **任務目標**: 在封閉太空船中搜尋倖存者，抵禦異形幼蟲抱臉體與成年禁衛異形。
+            * **前置需求**: `基因鎖一階 + 基礎等級 Lv.15`
+            """)
+            st.button("🔒 權限尚未解鎖", disabled=True, use_container_width=True)
+
+    # 2. 全身修復
+    with hub_tab2:
+        st.subheader("💫 主神全身光柱修復")
+        st.write("主神的光芒能瞬間修復任何致命創傷、斷肢與精神疲勞。")
+        cost_heal = int((p["max_hp"] - p["hp"]) * 0.5 + (p["max_mp"] - p["mp"]) * 0.5)
+        if cost_heal == 0:
+            st.success("✨ 你的身體處於巔峰完美狀態，無需修復！")
+        else:
+            st.warning(f"目前受傷狀態需要消耗：`{cost_heal} 點數`")
+            if st.button(f"💖 支付 {cost_heal} 點數進行全身光柱修復"):
+                if p["points"] >= cost_heal:
+                    p["points"] -= cost_heal
+                    p["hp"] = p["max_hp"]
+                    p["mp"] = p["max_mp"]
+                    st.success("✨ 溫暖的白光降臨！全身傷勢痊癒，狀態完全恢復！")
+                    st.rerun()
+                else:
+                    st.error("❌ 獎勵點數不足！")
+
+    # 3. 血統強化儀
+    with hub_tab3:
+        st.subheader("🧬 融合高階輪迴血統")
+        b_col1, b_col2 = st.columns(2)
+        with b_col1:
+            st.markdown("""
+            #### 🩸 變異吸血鬼血統 (D級)
+            * **消耗**: `1000 點數 + D階命運碎片 x1`
+            * **特性**: 解鎖【血族能量】、解鎖技能【嗜血撕咬】、等級上限 +20、生命上限 +50、力量 +15、敏捷 +15。
+            """)
+            if p["bloodline"] == "變異吸血鬼 (D級)":
+                st.button("✅ 已加載此血統", disabled=True)
+            else:
+                if st.button("🧬 兌換並融合【變異吸血鬼血統】"):
+                    if p["points"] >= 1000 and p["shards"]["D"] >= 1:
+                        p["points"] -= 1000
+                        p["shards"]["D"] -= 1
+                        p["bloodline"] = "變異吸血鬼 (D級)"
+                        p["level_cap"] += 20
+                        p["max_hp"] += 50
+                        p["hp"] = p["max_hp"]
+                        p["energy_name"] = "血族能量"
+                        p["max_energy"] = 100
+                        p["energy"] = 100
+                        p["stats"]["str"] += 15
+                        p["stats"]["spd"] += 15
+                        st.success("🎉 基因重組完成！成功融合【變異吸血鬼血統】！等級上限擴充至 Lv.50！")
                         st.rerun()
+                    else:
+                        st.error("❌ 點數或 D 階命運碎片不足！")
 
-# -----------------------------------------------------------------------------
-# 3. 血統與強化庫 (Bloodlines)
-# -----------------------------------------------------------------------------
-elif menu == "🧬 血統與強化庫 (Bloodlines)":
-    st.markdown('<div class="main-header">🧬 血統與強化庫</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-text">檢視各大強化體系、屬性倍率加成與基因鎖相容性</div>', unsafe_allow_html=True)
+        with b_col2:
+            st.markdown("""
+            #### ⚡ 初階賽亞人戰士血統 (C級)
+            * **消耗**: `3000 點數 + C階命運碎片 x1`
+            * **特性**: 解鎖【氣 (Ki)】、解鎖技能【氣功波】、瀕死戰力翻倍、力量 +35、體質 +30。
+            """)
+            if p["bloodline"] == "賽亞人 (C級)":
+                st.button("✅ 已加載此血統", disabled=True)
+            else:
+                if st.button("🧬 兌換並融合【賽亞人戰士血統】"):
+                    if p["points"] >= 3000 and p["shards"]["C"] >= 1:
+                        p["points"] -= 3000
+                        p["shards"]["C"] -= 1
+                        p["bloodline"] = "賽亞人 (C級)"
+                        p["level_cap"] += 25
+                        p["max_hp"] += 100
+                        p["hp"] = p["max_hp"]
+                        p["energy_name"] = "氣 (Ki)"
+                        p["max_energy"] = 150
+                        p["energy"] = 150
+                        p["stats"]["str"] += 35
+                        p["stats"]["con"] += 30
+                        st.success("🎉 金色氣焰爆發！成功融合【賽亞人戰士血統】！")
+                        st.rerun()
+                    else:
+                        st.error("❌ 點數或 C 階命運碎片不足！")
 
-    if bloodlines_list:
-        b_tabs = st.tabs([b.get("name", b.get("id", f"Bloodline {i}")) for i, b in enumerate(bloodlines_list) if isinstance(b, dict)])
-        for idx, b_info in enumerate(bloodlines_list):
-            if not isinstance(b_info, dict):
-                continue
-            with b_tabs[idx]:
-                st.subheader(f"🧬 {b_info.get('name', '未命名血統')}")
-                c1, c2 = st.columns([1, 2])
-                with c1:
-                    st.markdown(f"**能量屬性**: `{b_info.get('energy_name', '無')}`")
-                    st.markdown(f"**類別標籤**: `{' / '.join(b_info.get('tags', []))}`")
-                with c2:
-                    st.markdown(f"**背景描述**:\n\n{b_info.get('desc', b_info.get('description', '無描述'))}")
+    # 4. 主神物資商城
+    with hub_tab4:
+        st.subheader("🛒 主神空間武器裝備與戰術物資")
+        s1, s2, s3 = st.columns(3)
+        with s1:
+            st.markdown("#### 🗡️ 高頻電磁光刃 (ATK +60)")
+            st.write("消耗: `800 點數`")
+            if st.button("兌換 高頻電磁光刃"):
+                if p["points"] >= 800:
+                    p["points"] -= 800
+                    p["weapon"] = {"name": "高頻電磁光刃", "atk": 60, "type": "melee"}
+                    st.success("武器裝備成功！")
+                    st.rerun()
+                else:
+                    st.error("點數不足！")
 
-                grades = b_info.get("grades", {})
-                if grades:
-                    st.markdown("#### ⚡ 各階級能力解鎖")
-                    for grade_key, grade_val in grades.items():
-                        with st.expander(f"⭐ {grade_val.get('name', grade_key)} (點數: {grade_val.get('points', 0)} / 支線: {grade_val.get('fate_shard', '無')})"):
-                            st.json(grade_val.get("attributes", {}))
-                            st.write("**解鎖技能:**", grade_val.get("skills", []))
+        with s2:
+            st.markdown("#### 🛡️ 特種外骨骼裝甲 (DEF +35)")
+            st.write("消耗: `1200 點數 + D階碎片 x1`")
+            if st.button("兌換 外骨骼裝甲"):
+                if p["points"] >= 1200 and p["shards"]["D"] >= 1:
+                    p["points"] -= 1200
+                    p["shards"]["D"] -= 1
+                    p["armor"] = {"name": "特種外骨骼裝甲", "def": 35}
+                    st.success("防具裝備成功！")
+                    st.rerun()
+                else:
+                    st.error("資源不足！")
 
-# -----------------------------------------------------------------------------
-# 4. 怪物與敵人庫 (Monsters)
-# -----------------------------------------------------------------------------
-elif menu == "🧟 怪物與敵人庫 (Monsters)":
-    st.markdown('<div class="main-header">🧟 怪物與敵人數據庫</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-text">生化危機、異形等各世界怪物的戰鬥六圍、技能組與掉落物表</div>', unsafe_allow_html=True)
+        with s3:
+            st.markdown("#### 💊 輪迴急救噴霧 x3")
+            st.write("消耗: `300 點數` (立即回滿 150 HP)")
+            if st.button("購買 急救噴霧組"):
+                if p["points"] >= 300:
+                    p["points"] -= 300
+                    found = False
+                    for item in p["inventory"]:
+                        if item["id"] == "item_heal_spray":
+                            item["count"] += 3
+                            found = True
+                            break
+                    if not found:
+                        p["inventory"].append({"id": "item_heal_spray", "name": "輪迴止血急救噴霧", "count": 3, "effect": "heal_hp", "val": 150})
+                    st.success("購買成功！已存入背包。")
+                    st.rerun()
+                else:
+                    st.error("點數不足！")
 
-    if monsters_list:
-        for m in monsters_list:
-            if isinstance(m, dict):
-                with st.expander(f"🧟 {m.get('name', m.get('id', '未知怪物'))} (EXP: +{m.get('exp_reward', 0)})"):
-                    col_m1, col_m2 = st.columns(2)
-                    with col_m1:
-                        st.write("**基礎屬性:**", m.get("stats", {}))
-                    with col_m2:
-                        st.write("**掉落物表:**", m.get("drop_table", {}))
-                    st.write("**技能組:**", m.get("skills", []))
+    # 5. 重力修煉室
+    with hub_tab5:
+        st.subheader("🏋️ 10倍超重力修煉室")
+        st.write("消耗獎勵點數對自身肉體進行極限淬鍊，直接提升六圍屬性。每提升 5 點屬性消耗 200 點數。")
+        t_col1, t_col2, t_col3, t_col4, t_col5 = st.columns(5)
+        with t_col1:
+            if st.button("體質 CON +5"):
+                if p["points"] >= 200:
+                    p["points"] -= 200
+                    p["stats"]["con"] += 5
+                    p["max_hp"] += 25
+                    p["hp"] = p["max_hp"]
+                    st.success("體質提升！")
+                    st.rerun()
+        with t_col2:
+            if st.button("力量 STR +5"):
+                if p["points"] >= 200:
+                    p["points"] -= 200
+                    p["stats"]["str"] += 5
+                    st.success("力量提升！")
+                    st.rerun()
+        with t_col3:
+            if st.button("敏捷 SPD +5"):
+                if p["points"] >= 200:
+                    p["points"] -= 200
+                    p["stats"]["spd"] += 5
+                    st.success("敏捷提升！")
+                    st.rerun()
+        with t_col4:
+            if st.button("智力 INT +5"):
+                if p["points"] >= 200:
+                    p["points"] -= 200
+                    p["stats"]["int"] += 5
+                    p["max_mp"] += 20
+                    p["mp"] = p["max_mp"]
+                    st.success("智力提升！")
+                    st.rerun()
+        with t_col5:
+            if st.button("精神 MND +5"):
+                if p["points"] >= 200:
+                    p["points"] -= 200
+                    p["stats"]["mnd"] += 5
+                    st.success("精神提升！")
+                    st.rerun()
+
+# =============================================================================
+# 場景 2: 🗺️ 副本探索模式 (Mission Explore)
+# =============================================================================
+elif st.session_state.game_state == "mission_explore":
+    m = st.session_state.mission
+    st.markdown(f'<div class="main-header">🧟 {m["name"]}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="sub-text">目前深入進度：{m["progress"]}%</div>', unsafe_allow_html=True)
+    st.progress(m["progress"] / 100.0)
+
+    if m["progress"] >= 100:
+        st.balloons()
+        st.success("🎉 恭喜！你成功擊潰暴君並清空蜂巢地下設施，完成本次副本突圍！")
+        if st.button("🏆 領取通關獎勵並返回主神空間", type="primary"):
+            p["points"] += 2000
+            p["shards"]["D"] += 2
+            p["shards"]["C"] += 1
+            st.session_state.game_state = "hub"
+            add_log("🏆 蜂巢任務結算完成！獲得 +2000 點數，D階碎片 x2，C階碎片 x1！")
+            st.rerun()
+
     else:
-        st.info("尚未載入或暫無 monsters_db.json 資料。")
+        st.markdown("### 📍 前方通道與遭遇事件")
+        
+        # 根據進度顯示不同事件
+        if m["progress"] == 0:
+            st.info("🚨 進入蜂巢 B1 層閘門，警報狂鳴，前方長廊湧出大量敏捷型喪屍群！")
+            if st.button("⚔️ 拔出武器，迎擊【敏捷型突變喪屍】！", type="primary"):
+                start_battle("agile_zombie")
+                st.rerun()
 
-# -----------------------------------------------------------------------------
-# 5. 輪迴小隊與隊員 (Team & Members)
-# -----------------------------------------------------------------------------
-elif menu == "👥 輪迴小隊與隊員 (Team & Members)":
-    st.markdown('<div class="main-header">👥 輪迴小隊成員狀態</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-text">檢視中洲隊核心成員與預備隊員的屬性數值、基因鎖與裝備欄位</div>', unsafe_allow_html=True)
+        elif m["progress"] == 25:
+            st.info("🚪 發現一間被電子鎖死的高級醫務室，門上顯示需要進行智力破解。")
+            e_col1, e_col2 = st.columns(2)
+            with e_col1:
+                if st.button(f"🧠 進行智力檢定破解 (需要 INT >= 40，當前 INT: {p['stats']['int']})"):
+                    if p["stats"]["int"] >= 40:
+                        st.success("✨ 電子防爆門成功解鎖！在醫護箱中搜刮到【高階急救噴霧 x2】與【500 點數】！")
+                        p["points"] += 500
+                        for item in p["inventory"]:
+                            if item["id"] == "item_heal_spray":
+                                item["count"] += 2
+                        m["progress"] += 25
+                        time.sleep(1.5)
+                        st.rerun()
+                    else:
+                        st.error("❌ 智力不足，電子鎖自毀觸發毒氣！HP 受到 40 點傷害！")
+                        p["hp"] = max(10, p["hp"] - 40)
+                        m["progress"] += 25
+                        st.rerun()
+            with e_col2:
+                if st.button("繞過醫務室，繼續前進"):
+                    m["progress"] += 25
+                    st.rerun()
 
-    t_tab1, t_tab2 = st.tabs(["⭐ 中洲核心主隊 (Main Team)", "🎖️ 預備新進成員 (Reserve Pool)"])
+        elif m["progress"] == 50:
+            st.warning("⚠️ 天花板傳來刺耳的爬行刮擦聲！一隻長著外露大腦與利爪的【爬行者 (Licker)】從陰影中撲落！")
+            if st.button("⚔️ 迎戰【爬行者 (Licker)】！", type="primary"):
+                start_battle("licker")
+                st.rerun()
+
+        elif m["progress"] == 75:
+            st.error("🚨 警告！B3 培養槽爆裂！終極生化生物武器【暴君 (Tyrant T-002)】甦醒，巨型利爪直直朝你轟來！")
+            if st.button("🔥 決死一戰！挑戰【暴君 T-002】！", type="primary"):
+                start_battle("tyrant")
+                st.rerun()
+
+# =============================================================================
+# 場景 3: ⚔️ 即時回合指令戰鬥 (Combat Battle)
+# =============================================================================
+elif st.session_state.game_state == "battle":
+    e = st.session_state.combat["enemy"]
+    st.markdown(f'<div class="main-header">⚔️ 戰鬥遭遇：{e["name"]}</div>', unsafe_allow_html=True)
+
+    # 雙方血條展示
+    col_b1, col_b2 = st.columns(2)
+    with col_b1:
+        st.markdown(f"**👤 {p['name']}**")
+        p_pct = max(0.0, min(1.0, p['hp'] / p['max_hp']))
+        st.progress(p_pct, text=f"HP: {p['hp']}/{p['max_hp']} | MP: {p['mp']}/{p['max_mp']}")
+        if p["bloodline"]:
+            eng_pct = max(0.0, min(1.0, p['energy'] / p['max_energy'])) if p['max_energy'] > 0 else 0.0
+            st.progress(eng_pct, text=f"{p['energy_name']}: {p['energy']}/{p['max_energy']}")
     
-    with t_tab1:
-        if team_list:
-            for member in team_list:
-                if isinstance(member, dict):
-                    with st.expander(f"👤 {member.get('name', '未命名')} - {member.get('role', '隊員')} (HP: {member.get('hp', 0)}/{member.get('max_hp', 0)})"):
-                        c1, c2, c3 = st.columns(3)
-                        with c1:
-                            st.markdown(f"**血統體系**: `{member.get('bloodline', '無')}`")
-                            st.markdown(f"**基因鎖階段**: `第 {member.get('gene_lock', 0)} 階`")
-                            st.markdown(f"**獎勵點數餘額**: `{member.get('points', 0)}`")
-                        with c2:
-                            st.markdown(f"**體力 (CON)**: `{member.get('con', 0)}` | **力量 (STR)**: `{member.get('str', 0)}`")
-                            st.markdown(f"**敏捷 (SPD)**: `{member.get('spd', 0)}` | **智力 (INT)**: `{member.get('int', 0)}`")
-                            st.markdown(f"**精神 (MND)**: `{member.get('mnd', 0)}`")
-                        with c3:
-                            st.markdown(f"**主手武器**: `{member.get('equipped_main_hand', '無')}`")
-                            st.markdown(f"**身體防具**: `{member.get('equipped_torso', '無')}`")
-                            st.markdown(f"**狀態**: `{member.get('status', '正常')}`")
-        else:
-            st.info("暫無主隊成員資料。")
-
-    with t_tab2:
-        if reserve_list:
-            for member in reserve_list:
-                if isinstance(member, dict):
-                    with st.expander(f"🎖️ {member.get('name', '新人')} - {member.get('role', '新人')} ({member.get('archetype_ref', '')})"):
-                        st.json(member)
-        else:
-            st.info("暫無預備成員資料。")
-
-# -----------------------------------------------------------------------------
-# 6. 主神基地與工坊 (Home Base)
-# -----------------------------------------------------------------------------
-elif menu == "🏰 主神基地與工坊 (Home Base)":
-    st.markdown('<div class="main-header">🏰 主神基地與團隊工坊</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-text">檢視基地等級、重力修煉槽位與團隊全員光環</div>', unsafe_allow_html=True)
-
-    if base_tiers_list:
-        for tier in base_tiers_list:
-            if isinstance(tier, dict):
-                with st.expander(f"🏰 階級 {tier.get('tier', 1)}: {tier.get('name', '')} (消耗點數: {tier.get('cost_points', 0)} / 支線: {tier.get('cost_shard', '無')})"):
-                    st.markdown(f"**最大工坊槽位**: `{tier.get('max_slots', 0)}`")
-                    st.markdown(f"**副本回血率**: `{tier.get('hp_mp_regen_rate', 0) * 100}%`")
-                    st.markdown(f"**被動光環效果**: `{tier.get('passive_desc', '')}`")
-                    st.caption(tier.get('desc', ''))
-    else:
-        st.info("尚未載入主神基地資料。")
-
-# -----------------------------------------------------------------------------
-# 7. 關卡與任務 (Stages & Quests)
-# -----------------------------------------------------------------------------
-elif menu == "🗺️ 關卡與任務 (Stages & Quests)":
-    st.markdown('<div class="main-header">🗺️ 關卡節點與支線任務</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-text">劇情推進節點、生化危機街道地圖與隱藏支線檢定</div>', unsafe_allow_html=True)
-
-    tab_map, tab_quests = st.tabs(["🗺️ 關卡地圖 (Map Nodes)", "📜 支線任務 (Side Quests)"])
-    with tab_map:
-        if map_list:
-            for stage in map_list:
-                if isinstance(stage, dict):
-                    with st.expander(f"📍 {stage.get('stage_name', stage.get('stage_id', '關卡'))}"):
-                        st.json(stage.get("map_nodes", []))
-        else:
-            st.info("暫無地圖節點資料")
-    with tab_quests:
-        if quests_list:
-            for q in quests_list:
-                if isinstance(q, dict):
-                    with st.expander(f"📜 {q.get('quest_title', q.get('quest_id', '任務'))}"):
-                        st.write("**對話內容:**", q.get("dialogue_lines", []))
-                        st.write("**決策分支:**", q.get("choices", []))
-        else:
-            st.info("暫無支線任務資料")
-
-# -----------------------------------------------------------------------------
-# 8. 數值平衡與戰鬥模擬 (Simulator)
-# -----------------------------------------------------------------------------
-elif menu == "⚔️ 數值平衡與戰鬥模擬 (Simulator)":
-    st.markdown('<div class="main-header">⚔️ 戰鬥數值平衡模擬器</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-text">模擬輪迴者裝備不同武器、血統與基因鎖狀態下的輸出 DPS 與生存期望</div>', unsafe_allow_html=True)
-
-    col_sim1, col_sim2 = st.columns(2)
-    with col_sim1:
-        st.subheader("👤 角色設定")
-        base_hp = st.number_input("基礎生命值 (HP)", min_value=50, max_value=5000, value=100)
-        base_atk = st.number_input("基礎攻擊力 (ATK)", min_value=1, max_value=500, value=25)
-        gene_lock = st.selectbox("基因鎖階段 (Gene Lock)", ["未開啟", "一階 (戰鬥本能 +50% ATK)", "二階 (肉體解放 +100% ATK, +50% HP)", "三階 (思維模擬 +180% ATK)", "四階 (基因微觀掌控 +300% ATK)"])
-        crit_rate = st.slider("暴擊機率 (%)", 0, 100, 25) / 100.0
-        crit_dmg = st.slider("暴擊傷害倍率", 1.5, 5.0, 2.0)
-
-    with col_sim2:
-        st.subheader("🧟 目標敵人設定")
-        m_hp = st.number_input("敵人生命值 (HP)", min_value=10, max_value=50000, value=400)
-        m_def = st.number_input("敵人防禦減傷 (%)", min_value=0, max_value=90, value=10) / 100.0
-        m_atk = st.number_input("敵人攻擊力 (ATK)", min_value=1, max_value=500, value=20)
-        m_spd = st.number_input("敵人攻擊間隔 (秒)", min_value=0.5, max_value=5.0, value=1.5)
-
-    lock_multiplier = 1.0
-    hp_multiplier = 1.0
-    if "一階" in gene_lock:
-        lock_multiplier = 1.5
-    elif "二階" in gene_lock:
-        lock_multiplier = 2.0
-        hp_multiplier = 1.5
-    elif "三階" in gene_lock:
-        lock_multiplier = 2.8
-        hp_multiplier = 1.8
-    elif "四階" in gene_lock:
-        lock_multiplier = 4.0
-        hp_multiplier = 2.5
-
-    actual_player_hp = base_hp * hp_multiplier
-    expected_atk = (base_atk * lock_multiplier) * (1.0 - crit_rate + crit_rate * crit_dmg) * (1.0 - m_def)
-    hits_to_kill_monster = max(1, int(m_hp / expected_atk) + (1 if m_hp % expected_atk > 0 else 0))
-    time_to_kill_monster = hits_to_kill_monster * 0.4
-    
-    monster_dps = m_atk / m_spd
-    time_player_survives = actual_player_hp / monster_dps
+    with col_b2:
+        st.markdown(f"**🧟 {e['name']}**")
+        e_pct = max(0.0, min(1.0, e['hp'] / e['max_hp']))
+        st.progress(e_pct, text=f"敵人 HP: {e['hp']}/{e['max_hp']}")
 
     st.markdown("---")
-    st.subheader("📊 模擬運算結果")
-    r_col1, r_col2, r_col3, r_col4 = st.columns(4)
-    with r_col1:
-        st.metric("🔥 期望單擊傷害", f"{expected_atk:.1f}")
-    with r_col2:
-        st.metric("⏱️ 擊殺怪物所需時間", f"{time_to_kill_monster:.1f} 秒 ({hits_to_kill_monster} 次攻擊)")
-    with r_col3:
-        st.metric("🛡️ 玩家有效生命值", f"{actual_player_hp:.0f}")
-    with r_col4:
-        battle_result = "🏆 勝利 (無損/輕微)" if time_to_kill_monster < time_player_survives * 0.5 else ("⚠️ 慘勝 (重創)" if time_to_kill_monster < time_player_survives else "💀 死亡 (滅團)")
-        st.metric("⚔️ 戰局預測", battle_result)
+
+    # 戰術指令控制台
+    st.subheader("🎮 戰術行動指令")
+    cmd1, cmd2, cmd3, cmd4 = st.columns(4)
+
+    with cmd1:
+        if st.button(f"🗡️ 普通斬擊 ({p['weapon']['name']})", use_container_width=True):
+            player_attack("normal")
+            st.rerun()
+
+    with cmd2:
+        # 血統技能
+        if p["bloodline"] == "變異吸血鬼 (D級)":
+            if st.button("🩸 嗜血撕咬 (吸血+高傷)", use_container_width=True):
+                player_attack("skill", {"name": "嗜血撕咬", "energy_cost": 25, "mp_cost": 15, "mult": 2.2, "heal": 35})
+                st.rerun()
+        elif p["bloodline"] == "賽亞人 (C級)":
+            if st.button("⚡ 氣功波 (極大傷害)", use_container_width=True):
+                player_attack("skill", {"name": "氣功波", "energy_cost": 40, "mp_cost": 25, "mult": 3.2, "heal": 0})
+                st.rerun()
+        else:
+            if st.button("👊 蓄力重擊 (消耗 20 MP)", use_container_width=True):
+                player_attack("skill", {"name": "蓄力重擊", "energy_cost": 0, "mp_cost": 20, "mult": 1.6, "heal": 0})
+                st.rerun()
+
+    with cmd3:
+        # 基因鎖開啟
+        if not p["gene_lock_active"]:
+            if st.button("🧬 開啟基因鎖爆發！", use_container_width=True):
+                if p["gene_lock"] == 0:
+                    # 臨時突破一階
+                    p["gene_lock"] = 1
+                    p["gene_lock_active"] = True
+                    add_log("⚡【潛能爆發】在生死邊緣打破基因鎖第一階！進入戰鬥本能模式，攻擊力暴增！")
+                else:
+                    p["gene_lock_active"] = True
+                    add_log(f"🧬 開啟基因鎖第 {p['gene_lock']} 階！細胞活性全開！")
+                st.rerun()
+        else:
+            st.button("🔥 基因鎖狀態生效中 (+50% ATK)", disabled=True, use_container_width=True)
+
+    with cmd4:
+        # 道具使用
+        spray = next((i for i in p["inventory"] if i["id"] == "item_heal_spray" and i["count"] > 0), None)
+        if spray:
+            if st.button(f"💊 使用急救噴霧 (餘 {spray['count']})", use_container_width=True):
+                spray["count"] -= 1
+                p["hp"] = min(p["max_hp"], p["hp"] + 120)
+                add_log(f"💊 使用【輪迴止血急救噴霧】！傷口瞬間止血，恢復 120 HP！")
+                enemy_turn(e)
+                st.rerun()
+        else:
+            st.button("💊 急救噴霧耗盡", disabled=True, use_container_width=True)
+
+    # 戰鬥日誌 (Combat Log)
+    st.markdown("### 📜 戰況即時日誌")
+    log_text = "\n".join(reversed(st.session_state.combat["log"][-10:]))
+    st.text_area("戰鬥記錄", log_text, height=180, disabled=True)
+
+# =============================================================================
+# 場景 4: 💀 遊戲結束 / 陣亡重置 (Game Over)
+# =============================================================================
+elif st.session_state.game_state == "game_over":
+    st.error("💀 【輪迴突圍失敗 - 角色已陣亡】")
+    st.write("你在殘酷的生化危機蜂巢中倒下了。主神將扣除 500 點數將你從瀕死中復活修復。")
+    if st.button("💫 復活並返回主神空間", type="primary"):
+        p["hp"] = p["max_hp"]
+        p["mp"] = p["max_mp"]
+        p["points"] = max(0, p["points"] - 500)
+        st.session_state.game_state = "hub"
+        add_log("💫 主神修復了你的肉體，你重新回到了主神空間。")
+        st.rerun()
