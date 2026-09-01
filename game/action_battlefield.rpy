@@ -35,9 +35,28 @@ init -2 python:
             self.bg_disp = Transform("images/zombieroom.jpg", xsize=3840, ysize=2160)
             self.black_bg = BATTLE_BLACK_BG
             self.door_disp = BATTLE_DOOR_DISP
+            self.door_closed = Transform("images/door1.png", xsize=160, ysize=190)
+            self.door_opened = Transform("images/door2.png", xsize=160, ysize=190)
             
-            self.player_right = Transform("images/c1.png", xsize=80, ysize=115)
-            self.player_left = Transform("images/c1.png", xsize=80, ysize=115, xzoom=-1)
+            # 載入主角動作精靈 (使用去背處理後的 character 自定義圖檔)
+            self.anim_sprites_r = {
+                'stand': Transform("images/character/stand.png", xsize=95, ysize=125),
+                'walk': Transform("images/character/faceright.png", xsize=95, ysize=125),
+                'shoot': Transform("images/character/shootright.png", xsize=92, ysize=125),
+                'hit1': Transform("images/character/hit1.png", xsize=95, ysize=125),
+                'hit2': Transform("images/character/hit2.png", xsize=115, ysize=125),
+                'hit3': Transform("images/character/hit3.png", xsize=105, ysize=125),
+            }
+            self.anim_sprites_l = {
+                'stand': Transform("images/character/stand.png", xsize=95, ysize=125, xzoom=-1),
+                'walk': Transform("images/character/faceright.png", xsize=95, ysize=125, xzoom=-1),
+                'shoot': Transform("images/character/shootright.png", xsize=92, ysize=125, xzoom=-1),
+                'hit1': Transform("images/character/hit1.png", xsize=95, ysize=125, xzoom=-1),
+                'hit2': Transform("images/character/hit2.png", xsize=115, ysize=125, xzoom=-1),
+                'hit3': Transform("images/character/hit3.png", xsize=105, ysize=125, xzoom=-1),
+            }
+            self.player_right = self.anim_sprites_r['stand']
+            self.player_left = self.anim_sprites_l['stand']
             self.zombie_normal = Transform("images/agile_zombie.jpg", xsize=80, ysize=80)
             
             # 特效圖元
@@ -80,6 +99,9 @@ init -2 python:
             self.player_iframes = 0.0      # 受傷無敵時間 (秒)
             self.facing = 1                # 1 朝右, -1 朝左
             self.aim_angle = 0.0           # 射擊角度 (弧度)
+            self.player_state = 'idle'     # 'idle', 'walk', 'melee', 'shoot'
+            self.player_anim_timer = 0.0   # 動作幀計時器
+            self.walk_timer = 0.0          # 走路步伐計時器
             
             # 攝影機座標 (左上角)
             self.cam_x = 0.0
@@ -157,6 +179,10 @@ init -2 python:
                 return
             self.last_shot_time = now
             
+            # 觸發遠程射擊動作動畫
+            self.player_state = 'shoot'
+            self.player_anim_timer = 0.20
+            
             # 槍管發射位置 (偏離中心以符合槍口位置)
             bx = self.player_x + (25.0 * self.facing)
             by = self.player_y - 10.0
@@ -194,6 +220,10 @@ init -2 python:
             if now - self.last_melee_time < self.melee_cooldown:
                 return
             self.last_melee_time = now
+            
+            # 觸發近戰連斬動作動畫
+            self.player_state = 'melee'
+            self.player_anim_timer = 0.36
             
             # 斬擊範圍 (扇形/圓形範圍中心)
             slash_dist = 45.0
@@ -303,6 +333,10 @@ init -2 python:
             if dx != 0.0 and dy != 0.0:
                 dx *= 0.7071
                 dy *= 0.7071
+                
+            self.is_moving = (dx != 0.0 or dy != 0.0)
+            if self.is_moving:
+                self.walk_timer = (getattr(self, 'walk_timer', 0.0) + dt * 9.0) % 4.0
                 
             new_x = self.player_x + dx * self.player_speed * dt
             new_y = self.player_y + dy * self.player_speed * dt
@@ -550,11 +584,13 @@ init -2 python:
             bg_y = int((self.map_h - bg_h) / 2.0 - self.cam_y + oy)
             r.blit(bg_r, (bg_x, bg_y))
 
-            # 1.5 繪製傳送門 (發光的邊界區域，只顯示可用的傳送門)
+            # 1.5 繪製傳送門 (平時 door1 關閉，玩家靠近時 door2 開門)
             for d_name, d in self.doors.items():
                 if d['target_room'] != self.current_room:
-                    door_r = renpy.render(BATTLE_DOOR_DISP, d['w'], d['h'], st, at)
-                    r.blit(door_r, (int(d['x'] - d['w']/2 - self.cam_x + ox), int(d['y'] - d['h']/2 - self.cam_y + oy)))
+                    dist_to_door = math.hypot(self.player_x - d['x'], self.player_y - d['y'])
+                    door_img = self.door_opened if dist_to_door < 220.0 else self.door_closed
+                    door_r = renpy.render(door_img, 160, 190, st, at)
+                    r.blit(door_r, (int(d['x'] - 80 - self.cam_x + ox), int(d['y'] - 110 - self.cam_y + oy)))
 
             # 2. 繪製子彈
             for b in self.bullets:
@@ -582,12 +618,37 @@ init -2 python:
                 fg_r = renpy.render(bar_fg, hp_w, 7, st, at)
                 r.blit(fg_r, (int(z['x'] - self.cam_x + ox - 30), int(z['y'] - self.cam_y + oy - 50)))
 
-            # 5. 繪製玩家 (依朝向選用左右精靈，無敵時閃爍)
-            p_disp = self.player_right if self.facing == 1 else self.player_left
+            # 5. 繪製玩家 (依據自定義檔名 stand / faceright / shootright / hit1 / hit2 / hit3 切換動作)
+            anim_key = 'stand'
+            if getattr(self, 'player_anim_timer', 0.0) > 0.0:
+                self.player_anim_timer = max(0.0, self.player_anim_timer - dt)
+                if getattr(self, 'player_state', '') == 'melee':
+                    # 近戰 3 步連斬組合 (hit1 蓄力 -> hit2 橫斬 -> hit3 劈斬)
+                    prog = 1.0 - (self.player_anim_timer / 0.36)
+                    if prog < 0.33:
+                        anim_key = 'hit1'
+                    elif prog < 0.66:
+                        anim_key = 'hit2'
+                    else:
+                        anim_key = 'hit3'
+                elif getattr(self, 'player_state', '') == 'shoot':
+                    # 遠程持槍射擊架式 (shootright)
+                    anim_key = 'shoot'
+            elif getattr(self, 'is_moving', False):
+                # 移動奔跑步伐 (交替 faceright 與 stand)
+                w_step = int(getattr(self, 'walk_timer', 0.0)) % 2
+                anim_key = 'walk' if w_step == 0 else 'stand'
+            else:
+                # 預設站立待機 (stand)
+                anim_key = 'stand'
+
+            sprites = getattr(self, 'anim_sprites_r', {}) if self.facing == 1 else getattr(self, 'anim_sprites_l', {})
+            p_disp = sprites.get(anim_key, self.player_right if self.facing == 1 else self.player_left)
+
             is_blink_hidden = (self.player_iframes > 0.0 and int(st * 16) % 2 == 0)
             if not is_blink_hidden:
-                pr = renpy.render(p_disp, width, height, st, at)
-                r.blit(pr, (int(self.player_x - self.cam_x + ox - 40), int(self.player_y - self.cam_y + oy - 57)))
+                pr = renpy.render(p_disp, 120, 125, st, at)
+                r.blit(pr, (int(self.player_x - self.cam_x + ox - 50), int(self.player_y - self.cam_y + oy - 62)))
 
             # 6. 瞄準指示光點
             aim_len = 65.0
@@ -639,11 +700,16 @@ init -2 python:
                     raise renpy.IgnoreEvent()
 
         def visit(self):
-            return [
-                self.bg_disp, self.player_right, self.player_left, self.zombie_normal,
+            vis = [
+                self.bg_disp, self.door_closed, self.door_opened, self.player_right, self.player_left, self.zombie_normal,
                 self.red_flash, self.screen_hurt_disp, self.bullet_disp, self.particle_disp,
                 self.spark_disp, self.hp_bar_bg, self.hp_bar_fg, self.hp_bar_danger
             ]
+            if hasattr(self, 'anim_sprites_r'):
+                vis.extend(list(self.anim_sprites_r.values()))
+            if hasattr(self, 'anim_sprites_l'):
+                vis.extend(list(self.anim_sprites_l.values()))
+            return vis
 
 # ==============================================================================
 # 即時戰鬥外層 Screen (HUD 資訊面板、觸控按鈕與結算視窗)

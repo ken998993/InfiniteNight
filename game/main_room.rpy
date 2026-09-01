@@ -1,4 +1,4 @@
-﻿# ==========================================
+# ==========================================
 # 輪迴空間：中央廣場自由探索與導航樞紐 (main_room.rpy)
 # ==========================================
 
@@ -23,6 +23,16 @@ transform bg_scale_1080p:
     xalign 0.5 yalign 0.5
 
 image blackout_overlay = "#00000066"
+
+# 中央主神光球動畫 (只保留純淨去背 ball1.png，呼吸縮放與發光脈動)
+image main_god_orb_anim:
+    "images/ball1.png"
+    xsize 260 ysize 260
+    xalign 0.5 yalign 0.5
+    alpha 0.95 zoom 1.0
+    ease 0.85 alpha 0.65 zoom 0.95
+    ease 0.85 alpha 1.0 zoom 1.05
+    repeat
 
 
 # ==========================================
@@ -95,67 +105,109 @@ label main_room_exploration:
 # ==========================================
 screen topdown_main_room():
 
+    default show_main_god_menu = False
+
     add "#00000000" xysize (1920, 1080)
 
-    # 0. 專屬神域家園按鈕
-    textbutton "【 🏰 專屬神域家園 (工坊/修煉/羈絆) 】":
-        xpos 700 ypos 280
-        action Return("open_home_base")
-        text_size 26 text_idle_color "#ffd700" text_hover_color "#ffffff"
+    # 1. 中央主神大光球動畫 (只保留純淨去背 ball1.png 呼吸脈動，下移至正中間)
+    imagebutton:
+        xalign 0.5 ypos (210 if show_main_god_menu else 360)
+        idle "main_god_orb_anim"
+        hover Transform("images/ball1.png", xsize=280, ysize=280, xalign=0.5, yalign=0.5, alpha=1.0)
+        action ToggleScreenVariable("show_main_god_menu")
 
-    # 1. 中央輪迴光球 (強化與兌換)
-    textbutton "【 💡 中央輪迴光球 (血統強化 / 屬性加點 / 道具商城) 】":
-        xpos 550 ypos 350
-        action Return("exchange_core")
-        text_size 28 text_idle_color "#00ffff" text_hover_color "#ffffff"
+    # 2. 光球下方狀態 / 展開選單
+    if not show_main_god_menu:
+        textbutton "【 💡 連結主神光球 (點擊展開兌換/商城/強化選單) 】":
+            xalign 0.5 ypos 640
+            action ToggleScreenVariable("show_main_god_menu")
+            text_size 24 text_idle_color "#00ffff" text_hover_color "#ffffff"
+    else:
+        textbutton "【 ❌ 收起主神兌換選單 】":
+            xalign 0.5 ypos 160
+            action SetScreenVariable("show_main_god_menu", False)
+            text_size 20 text_idle_color "#ff6666" text_hover_color "#ffffff"
 
-    # 2. 六圍加點與全息模擬稻草人
-    textbutton "【 🧬 六圍屬性加點 (10點=1屬性) 】":
-        xpos 520 ypos 420
-        action Return("open_stat_alloc")
-        text_size 22 text_idle_color "#00ffcc" text_hover_color "#ffffff"
+        # 主神中央指令選單面板 (購買、兌換、加點、修復、工坊)
+        frame:
+            xalign 0.5 ypos 480
+            xsize 940
+            padding (25, 18)
+            background "#0b1220f5"
 
-    textbutton "【 🎯 全息模擬稻草人 (DPS測試) 】":
-        xpos 1020 ypos 420
-        action Return("open_training_dummy")
-        text_size 22 text_idle_color "#ffcc00" text_hover_color "#ffffff"
+            vbox:
+                spacing 10
+                xalign 0.5
 
-    # 3. 戰術背包與碎片工坊
-    textbutton "【 🎒 個人戰術背包 (8大部位裝備) 】":
-        xpos 560 ypos 480
-        action Return("open_inventory")
-        text_size 21 text_idle_color "#66ff66" text_hover_color "#ffffff"
+                hbox:
+                    spacing 25
+                    xalign 0.5
+                    textbutton "【 🛒 軍火與物資商城 】":
+                        action Return("open_item_shop")
+                        text_size 22 text_idle_color "#00ffff" text_hover_color "#ffffff"
 
-    textbutton "【 🔮 命運碎片工坊 (合成 / 拆解) 】":
-        xpos 1040 ypos 480
-        action Return("open_workshop")
-        text_size 21 text_idle_color "#ddaaff" text_hover_color "#ffffff"
+                    textbutton "【 🧬 血統兌換與強化 】":
+                        action Return("exchange_core")
+                        text_size 22 text_idle_color "#ddaaff" text_hover_color "#ffffff"
 
-    # 4. 全身修復
-    textbutton "【 💖 輪迴全身修復 (消耗 100 點) 】":
-        xpos 750 ypos 540
-        action Return("full_heal")
-        text_size 20 text_idle_color "#ff88aa" text_hover_color "#ffffff"
+                hbox:
+                    spacing 25
+                    xalign 0.5
+                    textbutton "【 ⚡ 六圍屬性加點 (10點=1屬性) 】":
+                        action Return("open_stat_alloc")
+                        text_size 20 text_idle_color "#00ffcc" text_hover_color "#ffffff"
+
+                    textbutton "【 🎯 全息模擬稻草人 (DPS測試) 】":
+                        action Return("open_training_dummy")
+                        text_size 20 text_idle_color "#ffcc00" text_hover_color "#ffffff"
+
+                hbox:
+                    spacing 25
+                    xalign 0.5
+                    textbutton "【 🎒 個人戰術背包 (8大部位) 】":
+                        action Return("open_inventory")
+                        text_size 20 text_idle_color "#66ff66" text_hover_color "#ffffff"
+
+                    textbutton "【 🔮 命運碎片工坊 (合成 / 拆解) 】":
+                        action Return("open_workshop")
+                        text_size 20 text_idle_color "#ddaaff" text_hover_color "#ffffff"
+
+                hbox:
+                    spacing 25
+                    xalign 0.5
+                    textbutton "【 💖 輪迴全身修復 (消耗 100 點) 】":
+                        action Return("full_heal")
+                        text_size 20 text_idle_color "#ff88aa" text_hover_color "#ffffff"
+
+                    textbutton "【 🏰 專屬神域家園 (工坊/修煉/羈絆) 】":
+                        action Return("open_home_base")
+                        text_size 20 text_idle_color "#ffd700" text_hover_color "#ffffff"
 
     # 4.5. 進入下一個世界主線按鈕 (線性推進，不可重複回溯)
     $ next_stg = get_next_stage_info()
     if next_stg:
         $ n_stg_name = next_stg.get("name")
         textbutton f"【 🌌 進入下一個世界：{n_stg_name} 】":
-            xalign 0.5 ypos 610
+            xalign 0.5 ypos (800 if show_main_god_menu else 730)
             action Return("enter_next_world_story")
             text_size 23 text_idle_color "#00ffea" text_hover_color "#ffffff"
     else:
         textbutton "【 🏆 全主線輪迴世界已通關 (中洲隊登頂) 】":
-            xalign 0.5 ypos 610
+            xalign 0.5 ypos (800 if show_main_god_menu else 730)
             action Return("all_stages_cleared_msg")
             text_size 22 text_idle_color "#888888" text_hover_color "#aaaaaa"
 
-    # 5. 四周區域按鈕
-    textbutton "【 你的房間 】":
-        xpos 250 ypos 200
+    # 5. 四周區域按鈕 (你的房間：平時 door1 關閉，懸停時 door2 打開)
+    imagebutton:
+        xpos 220 ypos 95
+        idle Transform("images/door1.png", xsize=170, ysize=205)
+        hover Transform("images/door2.png", xsize=170, ysize=205)
         action Return("my_room")
-        text_size 24 text_idle_color "#ffffff" text_hover_color "#00ffff"
+
+    textbutton "【 你的房間 】":
+        xpos 235 ypos 305
+        action Return("my_room")
+        text_size 23 text_idle_color "#ffffff" text_hover_color "#00ffff"
 
     textbutton "【 冷月的位置 】":
         xpos 1400 ypos 250
