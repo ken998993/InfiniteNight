@@ -8,6 +8,7 @@
       "imageUrl": "images/agile_zombie.jpg",
       "world_id": "zombie",
       "position_type": "Frontline",
+      "exp_reward": 60,
       "stats": {
         "hp": 100,
         "max_hp": 100,
@@ -45,6 +46,7 @@
       "imageUrl": "images/zombie.jpg",
       "world_id": "zombie",
       "position_type": "Frontline",
+      "exp_reward": 50,
       "stats": {
         "hp": 100,
         "max_hp": 100,
@@ -95,6 +97,7 @@
       "avatar": "images/agile_zombie.jpg",
       "world_id": "zombie",
       "position_type": "Frontline",
+      "exp_reward": 80,
       "stats": {
         "hp": 140,
         "max_hp": 140,
@@ -130,6 +133,7 @@
       "avatar": "images/core_idle.PNG",
       "world_id": "zombie",
       "position_type": "Backline_Hunter",
+      "exp_reward": 150,
       "stats": {
         "hp": 250,
         "max_hp": 250,
@@ -194,6 +198,7 @@
       "avatar": "images/core_idle.PNG",
       "world_id": "zombie",
       "position_type": "Boss",
+      "exp_reward": 450,
       "stats": {
         "hp": 450,
         "max_hp": 450,
@@ -264,6 +269,7 @@
       "name": "深空成體異形",
       "world_id": "space",
       "position_type": "Frontline",
+      "exp_reward": 180,
       "stats": {
         "hp": 480,
         "max_hp": 480,
@@ -313,6 +319,7 @@
       "name": "怨念厲鬼",
       "world_id": "paranormal",
       "position_type": "Backline_Hunter",
+      "exp_reward": 160,
       "stats": {
         "hp": 400,
         "max_hp": 400,

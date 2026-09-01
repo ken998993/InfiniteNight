@@ -52,6 +52,41 @@ init python:
         roster.append(new_member)
         return {"success": True, "msg": f"🎉 成功招募隊員【{target.get('name')}】加入隊伍！", "member": new_member}
 
+    # 計算角色當前等級上限 (普通人基礎 30 + 血統加成 20 + 基因鎖突破 10~100)
+    def calculate_level_cap(member):
+        if not member:
+            return 30
+        base_cap = 30
+        
+        # 1. 血統載入加成 (+20)
+        b_list = get_member_bloodlines(member) if 'get_member_bloodlines' in globals() else []
+        has_bloodline = len(b_list) > 0 or (member.get('bloodline') and member.get('bloodline') != '無')
+        bloodline_bonus = 20 if has_bloodline else 0
+        
+        # 2. 基因鎖任務突破加成 (最高 +100)
+        g_lock = member.get('gene_lock', 0)
+        lock_bonus_map = {
+            0: 0,
+            1: 10,
+            2: 20,
+            3: 30,
+            4: 40,
+            "4_1": 40,
+            "4_2": 55,
+            "4_3": 70,
+            5: 100
+        }
+        lock_bonus = lock_bonus_map.get(g_lock, 0)
+        if isinstance(g_lock, (int, float)):
+            if g_lock >= 5:
+                lock_bonus = 100
+            elif g_lock >= 4:
+                lock_bonus = 40
+            elif g_lock in lock_bonus_map:
+                lock_bonus = lock_bonus_map[g_lock]
+                
+        return base_cap + bloodline_bonus + lock_bonus
+
 
 # ==========================================
 # 團隊狀態面板介面
@@ -132,7 +167,11 @@ screen team_status_screen(page=0):
                                         spacing 2
                                         xysize (280, 48)
                                         text "[member.get('name', '未知')]" size 21 color "#00ffff" bold True
-                                        text "職稱：[member.get('role', '無')]" size 13 color "#aaaaaa"
+                                        $ m_lvl = int(member.get('level', 1))
+                                        $ m_exp = int(member.get('exp', 0))
+                                        $ m_next_exp = get_next_level_exp(m_lvl) if 'get_next_level_exp' in globals() else (m_lvl * 100)
+                                        $ m_lvl_cap = calculate_level_cap(member)
+                                        text f"等級: Lv. {m_lvl}/{m_lvl_cap} (EXP: {m_exp}/{m_next_exp})" size 13 color "#ffcc00" bold True
 
                                     vbox:
                                         spacing 2

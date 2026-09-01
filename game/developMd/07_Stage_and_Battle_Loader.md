@@ -125,7 +125,8 @@
       "id": "MOB_ZOMBIE_01",
       "name": "變異腐屍",
       "avatar": "images/zombie.jpg",
-      "stats": { "hp": 250, "atk": 35, "def": 10, "speed": 8 },
+      "exp_reward": 50,
+      "stats": { "hp": 100, "max_hp": 100, "atk": 15, "def": 10, "speed": 8, "exp": 50 },
       "skills": [
         {
           "skill_name": "腐蝕抓咬",
@@ -137,10 +138,10 @@
       ],
       "drop_table": {
         "common_drops": [
-          { "item_id": "MAT_ZOMBIE_BLOOD", "item_name": "喪屍血液", "drop_chance": 0.85, "min": 1, "max": 3 }
+          { "item_id": "MAT_ZOMBIE_BLOOD", "item_name": "喪屍血液", "drop_chance": 0.85, "min_quantity": 1, "max_quantity": 3 }
         ],
         "rare_drops": [
-          { "item_id": "CURRENCY_FATE_SHARD_RARE", "item_name": "精良命運碎片", "drop_chance": 0.05, "min": 1, "max": 1 }
+          { "item_id": "CURRENCY_FATE_SHARD_RARE", "item_name": "精良命運碎片", "drop_chance": 0.05, "min_quantity": 1, "max_quantity": 1 }
         ]
       }
     }

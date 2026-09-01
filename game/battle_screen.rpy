@@ -136,7 +136,8 @@
         enemies = battle_state.get('enemies', [])
         all_dead = all(to_int(e.get('hp', 0)) <= 0 for e in enemies)
         if all_dead:
-            m_ids = ["MOB_ZOMBIE_01", "MOB_LICKER_01"]
+            # 1. 計算怪物掉落戰利品
+            m_ids = [e.get('id', 'MOB_ZOMBIE_01') for e in enemies]
             if 'calculate_monster_drops' in globals():
                 drops, int_bonus = calculate_monster_drops(m_ids)
                 battle_state['last_loot'] = drops
@@ -147,7 +148,19 @@
                     if drops:
                         loot_strs = [f"{d['name']} x{d['count']}" for d in drops.values()]
                         battle_state['logs'].append(f"🎁【掠奪戰利品】已自動存入背包：{', '.join(loot_strs)}")
-            # 戰鬥結束時，將戰鬥中隊員的剩餘 HP、MP 完整同步回全域隊伍名單 (禁止自動滿血，受創狀態保留)
+                        
+            # 2. 計算並發放打怪獲得的角色經驗值 (EXP)
+            if not battle_state.get('is_simulation', False):
+                total_battle_exp = 0
+                for e in enemies:
+                    e_exp = to_int(e.get('exp', e.get('exp_reward', 0)))
+                    if e_exp <= 0:
+                        e_exp = max(30, int(to_int(e.get('max_hp', 100)) * 0.5) + int(to_int(e.get('atk', 15)) * 2))
+                    total_battle_exp += e_exp
+                if 'add_team_exp' in globals() and total_battle_exp > 0:
+                    add_team_exp(total_battle_exp, battle_state)
+                    
+            # 3. 戰鬥結束時，將戰鬥中隊員的剩餘 HP、MP、Level、EXP 完整同步回全域隊伍名單 (禁止自動滿血，受創狀態保留)
             p_team = battle_state.get('player_team', [])
             roster = get_team_roster() if 'get_team_roster' in globals() else []
             for b_mem in p_team:
@@ -156,6 +169,10 @@
                     if r_mem.get('name') == m_name:
                         r_mem['hp'] = max(1, to_int(b_mem.get('hp', 100)))
                         r_mem['mp'] = max(0, to_int(b_mem.get('mp', 50)))
+                        r_mem['level'] = to_int(b_mem.get('level', 1))
+                        r_mem['exp'] = to_int(b_mem.get('exp', 0))
+                        r_mem['max_hp'] = to_int(b_mem.get('max_hp', 100))
+                        r_mem['max_mp'] = to_int(b_mem.get('max_mp', 50))
                         r_mem['status'] = b_mem.get('status', '良好')
             renpy.end_interaction("win")
             return True

@@ -143,6 +143,12 @@ screen stat_allocation_screen(selected_idx=0):
                             vbox:
                                 spacing 8
                                 text "【 戰鬥衍生屬性 】" size 16 color "#ffaa00" bold True
+                                $ mem_lvl = int(member.get('level', 1))
+                                $ mem_exp = int(member.get('exp', 0))
+                                $ mem_next_exp = get_next_level_exp(mem_lvl) if 'get_next_level_exp' in globals() else (mem_lvl * 100)
+                                $ mem_cap = calculate_level_cap(member) if 'calculate_level_cap' in globals() else 30
+                                text f"當前等級：Lv. {mem_lvl} / {mem_cap} (上限)" size 14 color "#ffff00" bold True
+                                text f"經驗值 (EXP)：{mem_exp} / {mem_next_exp}" size 13 color "#00ffcc"
                                 text f"生命值上限 (HP): {member.get('max_hp', 100)}" size 14 color "#ff6666"
                                 text f"精神力上限 (MP): {member.get('max_mp', 50)}" size 14 color "#66ccff"
                                 text f"物理攻擊力加成: +{member.get('atk_bonus', 0)}" size 14 color "#ffaa00"

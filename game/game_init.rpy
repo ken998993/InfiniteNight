@@ -67,12 +67,16 @@ init python:
                     m['avatar'] = "images/xiangtian.PNG"
                 if "蘇曉" in str(m.get('name', '')):
                     m['avatar'] = "images/femalewriter.PNG"
-                for k in ['hp', 'max_hp', 'mp', 'max_mp', 'points', 'atk_bonus', 'gene_lock', 'con', 'str', 'spd', 'int', 'mnd']:
+                if 'level' not in m or int(m.get('level', 0)) < 1:
+                    m['level'] = 1
+                if 'exp' not in m:
+                    m['exp'] = 0
+                for k in ['level', 'exp', 'hp', 'max_hp', 'mp', 'max_mp', 'points', 'atk_bonus', 'gene_lock', 'con', 'str', 'spd', 'int', 'mnd']:
                     if k in m:
                         try:
                             m[k] = int(m[k])
                         except Exception:
-                            m[k] = 100 if 'hp' in k else 0
+                            m[k] = 100 if 'hp' in k else (1 if k == 'level' else 0)
             return team_roster
         try:
             with renpy.file("jsonData/team_data.json") as f:
@@ -84,12 +88,16 @@ init python:
                         m['avatar'] = "images/xiangtian.PNG"
                     if "蘇曉" in str(m.get('name', '')):
                         m['avatar'] = "images/femalewriter.PNG"
-                    for k in ['hp', 'max_hp', 'mp', 'max_mp', 'points', 'atk_bonus', 'gene_lock', 'con', 'str', 'spd', 'int', 'mnd']:
+                    if 'level' not in m or int(m.get('level', 0)) < 1:
+                        m['level'] = 1
+                    if 'exp' not in m:
+                        m['exp'] = 0
+                    for k in ['level', 'exp', 'hp', 'max_hp', 'mp', 'max_mp', 'points', 'atk_bonus', 'gene_lock', 'con', 'str', 'spd', 'int', 'mnd']:
                         if k in m:
                             try:
                                 m[k] = int(m[k])
                             except Exception:
-                                m[k] = 100 if 'hp' in k else 0
+                                m[k] = 100 if 'hp' in k else (1 if k == 'level' else 0)
         except Exception as e:
             team_roster = [
                 {
@@ -97,6 +105,8 @@ init python:
                     "role": "異數隊長 / 輪迴破局者",
                     "combat_role": "全能平衡 / 成長型",
                     "bloodline": "無 (可兼修多重體系)",
+                    "level": 1,
+                    "exp": 0,
                     "points": 1000,
                     "con": 30, "str": 25, "spd": 25, "int": 60, "mnd": 25,
                     "hp": 250, "max_hp": 250,
@@ -115,6 +125,88 @@ init python:
             ]
         return team_roster
 
+    # 計算升到下一級所需經驗值 (每級 * 100 點 EXP)
+    def get_next_level_exp(level):
+        lvl = max(1, int(level))
+        return lvl * 100
+
+    # 單一隊員獲得經驗值與升級檢查
+    def add_member_exp(member, exp_amount):
+        if not member or exp_amount <= 0:
+            return {"leveled_up": False, "level_ups": 0, "old_level": int(member.get("level", 1) if member else 1), "new_level": int(member.get("level", 1) if member else 1)}
+            
+        cur_lvl = max(1, int(member.get("level", 1)))
+        cur_exp = max(0, int(member.get("exp", 0))) + int(exp_amount)
+        cap = calculate_level_cap(member) if 'calculate_level_cap' in globals() else 30
+        
+        level_ups = 0
+        old_lvl = cur_lvl
+        
+        while True:
+            next_req = get_next_level_exp(cur_lvl)
+            if cur_exp >= next_req:
+                if cur_lvl < cap:
+                    cur_exp -= next_req
+                    cur_lvl += 1
+                    level_ups += 1
+                    # 升級屬性成長：生命上限+10、精神上限+5，並同步恢復當前生命與精神
+                    member["max_hp"] = int(member.get("max_hp", 100)) + 10
+                    member["hp"] = min(member["max_hp"], int(member.get("hp", 100)) + 10)
+                    member["max_mp"] = int(member.get("max_mp", 50)) + 5
+                    member["mp"] = min(member["max_mp"], int(member.get("mp", 50)) + 5)
+                else:
+                    cur_lvl = cap
+                    cur_exp = min(cur_exp, next_req)
+                    break
+            else:
+                break
+                
+        member["level"] = cur_lvl
+        member["exp"] = cur_exp
+        
+        return {
+            "leveled_up": (level_ups > 0),
+            "level_ups": level_ups,
+            "old_level": old_lvl,
+            "new_level": cur_lvl,
+            "cap_reached": (cur_lvl >= cap)
+        }
+
+    # 全體出戰隊員獲得經驗值並同步回隊伍存檔
+    def add_team_exp(exp_amount, battle_state=None):
+        global team_roster
+        roster = get_team_roster()
+        leveled_members = []
+        
+        p_team = battle_state.get('player_team', roster) if battle_state else roster
+        for mem in p_team:
+            if int(mem.get("hp", 0)) > 0 or not battle_state:
+                res = add_member_exp(mem, exp_amount)
+                if res.get("leveled_up"):
+                    leveled_members.append((mem.get("name", "隊員"), res["old_level"], res["new_level"]))
+                    
+        # 同步回全局 team_roster 存檔
+        for p_mem in p_team:
+            m_name = p_mem.get('name')
+            for r_mem in roster:
+                if r_mem.get('name') == m_name:
+                    r_mem['level'] = p_mem.get('level', 1)
+                    r_mem['exp'] = p_mem.get('exp', 0)
+                    r_mem['max_hp'] = p_mem.get('max_hp', 100)
+                    r_mem['hp'] = p_mem.get('hp', 100)
+                    r_mem['max_mp'] = p_mem.get('max_mp', 50)
+                    r_mem['mp'] = p_mem.get('mp', 50)
+                    
+        if battle_state and 'logs' in battle_state:
+            battle_state['logs'].append(f"✨【戰鬥經驗結算】擊敗全體敵方目標，參戰隊員全員獲得 +{exp_amount} 點角色經驗值！")
+            for m_name, old_l, new_l in leveled_members:
+                battle_state['logs'].append(f"🎉【角色升級！】隊員【{m_name}】升級至 Lv. {new_l}！(生命上限 +10，精神上限 +5)")
+                
+        if leveled_members and renpy.loadable("audio/levelup.ogg"):
+            renpy.sound.play("audio/levelup.ogg")
+            
+        return leveled_members
+
     # 2. 安全更新隊員點數的方法
     def update_member_points(new_points):
         global points, team_roster
@@ -123,7 +215,7 @@ init python:
         if roster and len(roster) > 0:
             roster[0]["points"] = points
 
-    # 3. 跨系統通用：自 monsters_db.json 即時建立戰鬥敵人物件
+    # 3. 跨系統通用：自 monsters_db.json 即時建立戰鬥敵人物件 (支援 exp_reward 掉落)
     def create_battle_enemy(monster_id, name_suffix="", status=None):
         m_data = None
         try:
@@ -138,6 +230,7 @@ init python:
             stats = m_data.get("stats", {})
             hp_val = int(stats.get("hp", 100))
             atk_val = int(stats.get("atk", 20))
+            exp_val = int(m_data.get("exp_reward", m_data.get("exp", 50)))
             m_name = m_data.get("name", monster_id)
             if name_suffix:
                 m_name = f"{m_name} {name_suffix}"
@@ -153,6 +246,7 @@ init python:
                 "hp": hp_val,
                 "max_hp": hp_val,
                 "atk": atk_val,
+                "exp": exp_val,
                 "status": status or ("嗜血狂暴" if "敏捷" in m_name else "戰鬥戒備"),
                 "avatar": avatar_val
             }
@@ -162,6 +256,7 @@ init python:
             "hp": 100,
             "max_hp": 100,
             "atk": 15,
+            "exp": 50,
             "status": status or "狂暴",
             "avatar": "images/core_idle.PNG"
         }

@@ -386,7 +386,25 @@ label stage_1_1_zombie_city:
     "呼嘯的腥風閃過，一隻敏捷型喪屍自天花板陰影中俯衝撲下，瞬間咬斷了周揚的喉管！"
     
     hide agile_zombie with dissolve
-    aurora_captain "蠢貨！離開前排防禦陣型就是這個下場！全體進入戰鬥姿態！"
+    aurora_captain "蠢貨！離開前排防禦陣型就是這個下場！"
+    
+    "【警報：隔離大廳氣閥全面撕裂！多隻敏捷型異變體從四周通風口與閘門蜂擁突入！】"
+    lengyue "顧臨淵！大廳閘門被撕開了，怪物速度太快，我們被沖散了！立刻拔槍自由射擊，守住大廳中央！"
+    
+    # 🎮 呼叫全新即時動作突圍戰場 (以 zombieroom 為背景，c1 自由四向移動射擊，agile_zombie 全向追蹤逼近)
+    call screen action_zombie_battle_screen(target_kills=8)
+    $ action_res = _return
+    
+    if action_res == "win":
+        $ update_member_points(points + 300)
+        $ add_team_exp(150)
+        lengyue "好敏銳的走位與射擊反應！能在突發近距離混戰中精準擊發，你的神經反射遠超普通新人。"
+        aurora_captain "幹得漂亮！大廳外圍湧出的突變體已經被清理乾淨！但前方核心走廊還有最後三隻狂暴個體擋在防爆門前！"
+    else:
+        "冷月手腕一揚，兩柄銀色特裝手槍如同暴風驟雨般開火，念動爆裂彈精準轟碎了逼近的最後幾隻喪屍！"
+        lengyue "別愣著！退到防護掩體後方！"
+        aurora_captain "全體重整隊列！進入戰鬥陣型，準備突破前方防爆大門！"
+        
     xiangtian "前排交給我跟顧兄！蘇曉退到後排保護好自己！"
     suxiao "好……大家小心！"
     
