@@ -1,11 +1,6 @@
 import streamlit as st
 import os
-import sys
-import threading
-import http.server
-import socketserver
 import shutil
-import time
 
 # -----------------------------------------------------------------------------
 # 頁面配置 (全螢幕遊戲視窗)
@@ -18,82 +13,45 @@ st.set_page_config(
 )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_DIR = os.path.join(BASE_DIR, "static")
 
-# 優先尋找你上傳的 InfiniteNight-1.0-dists/InfiniteNight-1.0-web 目錄
-candidate_web_dirs = [
+# 尋找 Web 導出檔案來源 (優先使用 InfiniteNight-1.0-dists/InfiniteNight-1.0-web)
+candidate_source_dirs = [
     os.path.join(BASE_DIR, "InfiniteNight-1.0-dists", "InfiniteNight-1.0-web"),
-    os.path.join(BASE_DIR, "static"),
-    os.path.join(BASE_DIR, "web"),
     os.path.join(BASE_DIR, "..", "InfiniteNight-1.0-dists", "InfiniteNight-1.0-web"),
+    os.path.join(BASE_DIR, "web"),
     os.path.join(BASE_DIR, "InfiniteNight-1.0-web")
 ]
 
-WEB_DIR = next((d for d in candidate_web_dirs if os.path.exists(os.path.join(d, "index.html"))), None)
+source_web_dir = next((d for d in candidate_source_dirs if os.path.exists(os.path.join(d, "index.html"))), None)
 
-# 自動同步至 static/ 目錄以支援 Streamlit Cloud 靜態路由服務
-if WEB_DIR:
-    target_static = os.path.join(BASE_DIR, "static")
-    if not os.path.exists(target_static):
+# 自動將導出檔案同步至 static/ 目錄，啟用 Streamlit 內部靜態伺服器 (免 127.0.0.1 端口)
+if source_web_dir:
+    if not os.path.exists(STATIC_DIR):
+        os.makedirs(STATIC_DIR, exist_ok=True)
+    
+    # 檢查 static/ 是否已有 index.html，若無或來源更新則同步複製
+    target_index = os.path.join(STATIC_DIR, "index.html")
+    if not os.path.exists(target_index) or (os.path.getmtime(os.path.join(source_web_dir, "index.html")) > os.path.getmtime(target_index)):
         try:
-            shutil.copytree(WEB_DIR, target_static)
-        except:
-            pass
+            for item in os.listdir(source_web_dir):
+                s = os.path.join(source_web_dir, item)
+                d = os.path.join(STATIC_DIR, item)
+                if os.path.isdir(s):
+                    shutil.copytree(s, d, dirs_exist_ok=True)
+                else:
+                    shutil.copy2(s, d)
+        except Exception as e:
+            st.error(f"靜態檔案同步失敗: {e}")
 
-PORT = 8042
-
-# -----------------------------------------------------------------------------
-# 啟動支援 WebAssembly 的本機 HTTP 伺服器 (包含 COOP / COEP 跨域安全標頭)
-# -----------------------------------------------------------------------------
-class WasmHTTPHandler(http.server.SimpleHTTPRequestHandler):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory=WEB_DIR, **kwargs)
-
-    def end_headers(self):
-        # WebAssembly 與 SharedArrayBuffer 必需之跨域標頭
-        self.send_header('Cross-Origin-Opener-Policy', 'same-origin')
-        self.send_header('Cross-Origin-Embedder-Policy', 'require-corp')
-        self.send_header('Cache-Control', 'no-cache')
-        super().end_headers()
-
-    def log_message(self, format, *args):
-        pass  # 靜音常規存取記錄
-
-@st.cache_resource
-def run_background_server(web_directory, port=8042):
-    if not web_directory or not os.path.exists(web_directory):
-        return False
-    try:
-        socketserver.TCPServer.allow_reuse_address = True
-        httpd = socketserver.TCPServer(("", port), WasmHTTPHandler)
-        server_thread = threading.Thread(target=httpd.serve_forever, daemon=True)
-        server_thread.start()
-        return True
-    except OSError:
-        # 端口已在使用中，代表伺服器已在運行
-        return True
-    except Exception as e:
-        st.error(f"伺服器啟動失敗: {e}")
-        return False
-
-# 啟動背景 Web 遊戲服務
-if WEB_DIR:
-    run_background_server(WEB_DIR, PORT)
+# 檢查 static 內部是否已就緒
+has_game = os.path.exists(os.path.join(STATIC_DIR, "index.html"))
 
 # -----------------------------------------------------------------------------
 # 頂部導航與控制面板
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
-    .header-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: linear-gradient(90deg, #091224, #1e1b4b);
-        padding: 10px 20px;
-        border-radius: 8px;
-        margin-bottom: 12px;
-        border: 1px solid #334155;
-    }
     .game-title {
         font-size: 1.6rem;
         font-weight: 900;
@@ -107,29 +65,28 @@ st.markdown("""
 col_t1, col_t2 = st.columns([3, 2])
 with col_t1:
     st.markdown('<div class="game-title">🌌 《無限之夜 Infinite Night》 網頁即玩版</div>', unsafe_allow_html=True)
-    if WEB_DIR:
-        st.caption(f"✅ 成功讀取目錄：`{os.path.basename(os.path.dirname(WEB_DIR))}/{os.path.basename(WEB_DIR)}`")
+    if has_game:
+        st.caption("✅ 採用 Streamlit 內部原生靜態路由 (/app/static/index.html) 載入")
     else:
-        st.caption("⚠️ 尋找 WebAssembly 導出目錄中...")
+        st.caption("⚠️ 尋找 Web 導出檔案中...")
 
 with col_t2:
     btn_col1, btn_col2 = st.columns(2)
     with btn_col1:
-        st.link_button("🌐 在新視窗全螢幕打開", f"http://127.0.0.1:{PORT}/index.html", use_container_width=True)
+        st.link_button("🌐 在新分頁全螢幕打開", "/app/static/index.html", use_container_width=True)
     with btn_col2:
-        if st.button("🔄 重新載入遊戲", use_container_width=True):
+        if st.button("🔄 重新載入", use_container_width=True):
             st.rerun()
 
 # -----------------------------------------------------------------------------
-# 內嵌 16:9 高畫質遊戲視窗
+# 內嵌 16:9 高畫質遊戲視窗 (使用 Streamlit 內部路徑 app/static/index.html)
 # -----------------------------------------------------------------------------
-if WEB_DIR:
-    # 支援 Streamlit Cloud 靜態路由或本地 8042 埠
+if has_game:
     st.components.v1.iframe(
-        src=f"http://127.0.0.1:{PORT}/index.html",
+        src="app/static/index.html",
         width=1280,
         height=750,
         scrolling=False
     )
 else:
-    st.error("⚠️ 未找到 Ren'Py Web 導出檔案 (index.html)。請確認 `InfiniteNight-1.0-dists/InfiniteNight-1.0-web` 目錄存在！")
+    st.error("⚠️ 未在 `InfiniteNight-1.0-dists/InfiniteNight-1.0-web` 中找到 `index.html`！請確認目錄完整性。")

@@ -3,3 +3,4 @@ enableStaticServing = true
 headless = true
 enableCORS = false
 enableXsrfProtection = false
+
